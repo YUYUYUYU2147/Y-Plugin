@@ -1,0 +1,48 @@
+{
+  "name": "Y-plugin",
+  "version": "0.0.2",
+  "description": "Yunzai-Bot扩展插件",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "contributors:add": "all-contributors add",
+    "contributors:generate": "all-contributors generate",
+    "lint": "eslint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitcode.com/Lovely-02/Y-Plugin.git"
+  },
+  "keywords": [
+    "Miao-Yunzai",
+    "TRSS-Yunzai",
+    "Y-Plugin"
+  ],
+  "author": "Lovely-02",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "bufferpack": "^0.0.6",
+    "https-proxy-agent": "7.0.6",
+    "lunar-javascript": "^1.7.1",
+    "marked": "^14.1.4",
+    "protobufjs": "^7.4.0",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.33.5",
+    "ulid": "^3.0.0",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-import-resolver-custom-alias": "^1.3.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsdoc": "^48.11.0",
+    "eslint-plugin-n": "^17.17.0",
+    "eslint-plugin-promise": "^6.6.0"
+  },
+  "imports": {
+    "#components": "./components/index.js",
+    "#model": "./model/index.js",
+    "#lib": "./lib/index.js"
+  }
+}

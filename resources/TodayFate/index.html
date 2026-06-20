@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{_res_path}}/TodayFate/index.css" />
+    <style>
+      body {
+        background: linear-gradient(
+            135deg,
+            rgba(20, 20, 20, 0.6),
+            rgba(30, 30, 30, 0.6)
+          ),
+          url("{{bgcover}}") center center/cover no-repeat fixed !important;
+        background-blend-mode: overlay;
+        backdrop-filter: blur(2px) brightness(0.9);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="fortune-box">
+        <div class="title">今日运势</div>
+
+        <div class="content">
+          <div class="item">
+            <div class="label">🌸运势：</div>
+            <div class="value">{{Fortune}}</div>
+          </div>
+
+          <div class="item">
+            <div class="label">🔯星级：</div>
+            <div class="value">{{Start}}</div>
+          </div>
+
+          <div class="item">
+            <div class="label">🔖点评：</div>
+            <div class="value">{{Sign}}</div>
+          </div>
+
+          <div class="item">
+            <div class="label">📖解读：</div>
+            <div class="value">{{Text}}</div>
+          </div>
+        </div>
+
+        <div class="footer">
+          仅供娱乐|相信科学|请勿迷信<br />
+          {{@sys.copyright}}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

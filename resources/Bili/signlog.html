@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{_res_path}}/Bili/signlog.css">
+    <style>
+      body {
+        background: url("{{bgcover}}");
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>B站{{uid}}签到结果</h1>
+        </div>
+
+        <div class="section task-section">
+            <h2 data-icon="✅">任务完成情况</h2>
+            <div class="exp-item">
+                <span>投币任务</span>
+                <span class="primary">{{Coins}}</span>
+            </div>
+            <div class="exp-item">
+                <span>分享任务</span>
+                <span class="primary">{{Shares}}</span>
+            </div>
+            <div class="exp-item">
+                <span>观看任务</span>
+                <span class="primary">{{Watches}}</span>
+            </div>
+            <div class="exp-item">
+                <span>大会员经验</span>
+                <span class="primary">{{Experience}}</span>
+            </div>
+        </div>
+
+        <div class="section coupon-section">
+            <h2 data-icon="🎫">卡券领取情况</h2>
+            <ul class="coupon-list">
+                <li>
+                    <span>B币券</span>
+                    <span class="primary">{{Coupons["1"]}}</span>
+                </li>
+                <li>
+                    <span>会员购优惠券</span>
+                    <span class="primary">{{Coupons["2"]}}</span>
+                </li>
+                <li>
+                    <span>漫画福利券</span>
+                    <span class="primary">{{Coupons["3"]}}</span>
+                </li>
+                <li>
+                    <span>会员购包邮券</span>
+                    <span class="primary">{{Coupons["4"]}}</span>
+                </li>
+                <li>
+                    <span>漫画商城优惠券</span>
+                    <span class="primary">{{Coupons["5"]}}</span>
+                </li>
+                <li>
+                    <span>装扮体验卡</span>
+                    <span class="primary">{{Coupons["6"]}}</span>
+                </li>
+                <li>
+                    <span>课堂优惠券</span>
+                    <span class="primary">{{Coupons["7"]}}</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section manga-section">
+            <h2 data-icon="📚">漫画相关</h2>
+            <div class="exp-item">
+                <span>漫画签到</span>
+                <span class="primary">{{ManhuaSign}}</span>
+            </div>
+            <div class="exp-item">
+                <span>漫画分享</span>
+                <span class="primary">{{ManhuaShare}}</span>
+            </div>
+        </div>
+        <div class="footer">
+            {{@sys.copyright}}
+          </div>
+    </div>
+</body>
+</html>

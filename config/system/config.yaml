@@ -1,0 +1,362 @@
+# 此配置文件为系统使用，请勿修改，否则可能无法正常使用
+# 用户配置已移动至 Yz/config/DF-Plugin.yaml
+
+# Git仓库更新推送
+CodeUpdate:
+  AutoTips: |-
+    自动检查仓库更新开关
+  Auto: false
+  AutoBranchTips: |-
+    是否自动给未配置分支的仓库添加默认分支
+  AutoBranch: true
+  FirstAddTips: |-
+    首次添加仓库(数据库不存在数据库)是否进行一次推送
+  FirstAdd: false
+  CronTips: |-
+    仓库更新检查Cron表达式
+    Github/Gitee Api 未认证用户每小时限制60 (ip限制), 认证用户每小时限制5000次 (账号限制)
+  Cron: '0 */30 * * * *'
+  RepoTips: |-
+    GitApi配置
+      provider: 仓库提供商，唯一标识符
+      token: 认证Token
+      ApiUrl: Api地址
+  repos:
+    - provider: 'GitHub'
+      token: ''
+      ApiUrl: 'https://api.github.com/repos'
+      icon: 'GitHub'
+      tips: Github个人Token 获取地址 https://github.com/settings/tokens
+    - provider: 'Gitee'
+      token: ''
+      ApiUrl: 'https://gitee.com/api/v5/repos'
+      icon: 'Gitee'
+      tips: Gitee个人Token 获取地址 https://gitee.com/profile/personal_access_tokens
+    - provider: 'Gitcode'
+      token: ''
+      ApiUrl: 'https://gitcode.com/api/v5/repos'
+      icon: 'Gitcode'
+      tips: Gitcode个人Token 获取地址 https://gitcode.com/setting/token-classic
+    - provider: 'CNB'
+      token: ''
+      ApiUrl: 'https://api.cnb.cool'
+      icon: 'CNB'
+
+  ListTips: |-
+    推送配置
+    Group: 推送的群聊列表
+    QQ: 推送的QQ列表
+    AutoPath: 是否自动获取已安装的插件地址并监听
+    Exclude: 排除的仓库路径(用于忽略一些不希望被监听的插件)
+    repos: 
+        provider: 仓库提供商，唯一标识符
+        repo: 仓库名
+        branch: 分支名 (commit时有效 为空自动获取)
+        type: commit 或 release
+        icon: 图标
+    note: 备注
+  List: []
+other:
+  priorityTips: |-
+    插件优先级配置
+  priority: 0
+  WhhfSetTips: |-
+    问候回复开关
+  WhhfSet: true
+  whhfTips: |-
+    问候回复地址
+  whhf: ''
+  PushBotTips: |-
+    推送Bot
+  PushBot: []
+  zdbsTypeTips: |-
+    整点报时Type
+  zdbsType: 1
+  zdbsGroupTips: |-
+    整点报时自动推送群
+  zdbsGroup: []
+  zdbsUrlTips: |-
+    整点报时URL
+  zdbsUrl: ''
+  zdbsMsgTips: |-
+    整点报时文本
+  zdbsMsg: ''
+  nzSetTips: |-
+    闹钟开关
+  nzSet: true
+  nzCronTips: |-
+    闹钟定时
+  nzCron: '0 */1 * * * *'
+  nzCountTips: |-
+    闹钟次数
+  nzCount: 5
+  nzMsgTips: |-
+    闹钟文本
+  nzMsg: '到点了到点了~'
+  WeatherSetTips: |-
+    天气开关
+  WeatherSet: true
+  weatherTips: |-
+    天气接口key 
+    获取地址https://console.amap.com/
+  weather: []
+  nezhaIPTips: |-
+    哪吒面板地址
+  nezhaIP: ''
+  nezhaUserTips: |-
+    哪吒面板用户
+  nezhaUser: ''
+  nezhaCodeTips: |-
+    哪吒面板密码
+  nezhaCode: ''
+  DZListTips: |-
+    自动点赞列表
+  DZList: []
+  LuckywordGroupTips: |-
+    自动抽字符群
+  LuckywordGroup: []
+  SeseSetTips: |-
+    验车开关
+  SeseSet: true
+  SeseTips: |-
+    验车权限
+  Sese: 2
+  SeseListTips: |-
+    验车白名单
+  SeseList:
+    - '84227871'
+  JMJMTips: |-
+    PDF是否加密
+  JMJM: true
+  JMMAXTips: |-
+    PDF最大限制
+  JMMAX: 100
+  EditGroupTips: |-
+    群 名片/头衔 修改
+  EditGroup: https://v1.hitokoto.cn/?encode=text&max_length=6
+  JrysTypeTips: |-
+    今日运势模式 0: 文字 1: 图片
+  JrysType: 0
+  JrysJTips: |-
+    主人是否大吉
+  JrysJ: true
+  JrysmdTips: |-
+    markdown开关
+  Jrysmd: false
+  JrysimgTips: |-
+    图片地址
+  Jrysimg: ''
+
+# 联系主人设置
+sendMaster:
+  openTips: |-
+    联系主人开关
+  open: true
+  cdTips: |-
+    联系主人CD 单位: 秒 填0关闭cd
+  cd: 30
+  MasterTips: |-
+    是否发送全部主人 0: 仅发送首个主人 1: 发送全部主人 
+    填主人账号可以指定发送某个主人
+  Master: 0
+  BotIdTips: |-
+    指定某个Bot发送 为0时为触发Bot
+  BotId: 0
+  MsgTemplateTips: |-
+    发送给主人的消息
+    支持变量:
+    key 消息标识，用于回复消息时调用，如果不需要回复可以删掉
+    avatar 发送者头像
+    platform 平台信息 如 QQ、微信等
+    user 触发者信息
+    gloup 群聊信息 私聊时显示私聊
+    bot 触发Bot信息
+    time 发送时间
+    msg 消息内容
+  MsgTemplate: |-
+    {{key}}
+    {{avatar}}
+    平台: {{platform}}
+    用户: {{user}}
+    来自: {{group}}
+    BOT: {{bot}}
+    时间: {{time}}
+    消息内容:
+    {{msg}}
+    -------------
+    引用该消息：#联系回复 <内容>
+
+  successMsgTemplateTips: |-
+    消息发送成功后返回的消息
+    可用参数:
+    masterQQ 主人的QQ
+  successMsgTemplate: |-
+    ✅ 消息已送达
+    主人的QQ: {{masterQQ}}
+
+  failsMsgTemplateTips: |-
+    失败时发送的消息
+    可用参数:
+    masterQQ 主人的QQ
+  failsMsgTemplate: |-
+    ❎ 消息发送失败，请尝试自行联系：{{masterQQ}}
+
+  replyMsgTemplateTips: |-
+    主人回复时发送的消息
+    可用参数:
+    nickname 主人昵称
+    id 进行回复操作的主人账号
+    msg 消息内容
+  replyMsgTemplate: |-
+    主人 {{nickname}}({{id}}) 回复:
+    {{msg}}
+
+  banWordsTips: |-
+    违禁词，当消息包含下列内容将不会发送给主人
+  banWords: []
+  banUserTips: |-
+    禁用的用户，不允许该用户联系主人
+  banUser: []
+  banGroupTips: |-
+    禁用的群聊，不允许通过该群联系主人
+  banGroup: []
+
+# 图片外显配置
+summary:
+  sumTips: |-
+    图片外显开关
+  sum: false
+  typeTips: |-
+    外显模式 (1: 自定义外显 2:  一言接口 3: 列表随机)
+  type: 2
+  textTips: |-
+    自定义外显
+  text: 'Ciallo～(∠・ω< )⌒☆'
+  listTips: |-
+    自定义外显随机列表
+  list:
+    - 你干嘛~
+    - 我喜欢你
+
+  apiTips: |-
+    一言接口
+  api: 'https://v1.hitokoto.cn/?encode=text'
+
+# 代理设置
+proxy:
+  openTips: |-
+    是否代理大部分请求
+  open: false
+  urlTips: |-
+    代理地址
+  url: 'http://127.0.0.1:7890'
+  prTips: |-
+    通用反代
+  pr: ''
+
+poke:
+  pokeTips: |-
+    戳一戳开关
+  poke: true
+  cdTips: |-
+    冷却时间
+  cd: 2
+  listTips: |-
+    开启类型
+  list: []
+  textTips: |-
+    戳一戳文本回复
+  text: ''
+  imgTips: |-
+    戳一戳图片回复
+  img: ''
+  voiceTips: |-
+    戳一戳语音回复
+  voice: ''
+
+Signature:
+  utoTips: |-
+    个性签名开关
+  Auto: false
+  BotTips: |-
+    个性签名Bot
+  Bot: []
+  UrlTips: |-
+    个性签名文本URL
+  Url: ''
+  CronTips: |-
+    个性签名更新时间
+  Cron: '0 * * * *'
+
+Bili:
+  Server_PortTips: |-
+    端口
+  Server_Port: 8422
+  prefixTips: |-
+    提示前缀
+  prefix: ''
+  SignTips: |-
+    自动签到定时
+  SignCron: '0 0 6 * * ?'
+  DanMuTips: |-
+    自动弹幕定时
+  DanMuCron: '0 0 0/4 * * ?'
+  DanMutextTips: |-
+    弹幕一言URl
+  DanMutext: ''
+  DanMuHGroupTips: |-
+    弹幕推送白名单群
+  DanMuHGroup: []
+  DanMuBGroupTips: |-
+    弹幕推送黑名单群
+  DanMuBGroup: []
+  LivedamuTips: |-
+    弹幕监听权限
+  Livedamu: 0
+  LivedamuTimeTips: |-
+    弹幕监听推送时间
+  LivedamuTime: 5000
+  Sign_ApiTips: |-
+    登录Api接口地址
+  Sign_Api: 'https://api.521002.xyz'
+  DYupcronTips: |-
+    订阅up推送定时规则
+  DYupcron: 0 */30 * * * *
+  DYLiveTips: |-
+    订阅直播开关
+  DYLive: true
+  DYVideoTips: |-
+    订阅动态开关
+  DYVideo: true
+  UPListTips: |-
+    推送配置
+    Group: 推送的群聊列表
+    UP: 推送的UP列表
+    Filter: 包含此字段不推送
+  UPList: []
+
+randoms:
+  openTips: |-
+    开关
+  open: true
+  ForceTips: |-
+    开启强制#回复
+  Force:: false
+  CompImageTips: |-
+    随机图片压缩质量
+  CompImage: 0.8
+  textTips: |-
+    文本列表
+    name: 名称列表
+    url: 地址
+  text: []
+  imageTips: |-
+    图片列表
+    name: 名称列表
+    url: 地址
+  image: []
+  videoTips: |-
+    视频列表
+    name: 名称列表
+    url: 地址
+  video: []

@@ -1,0 +1,128 @@
+:root {
+    --primary-color: #FB7299;
+    --secondary-color: #00a1d6;
+    --bg-color: #f5f5f5;
+}
+
+* {
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--bg-color);
+    line-height: 1.6;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--primary-color);
+    margin: 20px auto;
+    border-radius: 2px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.section {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+    color: var(--secondary-color);
+    font-size: 1.5em;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section h2::before {
+    content: attr(data-icon);  /* 使用data-icon属性来显示emoji */
+    font-family: inherit;      /* 移除Font Awesome字体 */
+    font-weight: normal;
+}
+
+.exp-item {
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exp-item .primary {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.coupon-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 0;
+}
+
+.coupon-list .primary {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.coupon-list li {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer {
+    text-align: center;
+    color: #555;
+    font-size: 16px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  }

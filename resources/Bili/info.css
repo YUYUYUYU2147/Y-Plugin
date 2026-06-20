@@ -1,0 +1,417 @@
+/* info.css */
+
+/* 定义字体 */
+@font-face {
+  font-family: "LolitaFont";
+  src: url("../font/font.woff") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "LolitaFont", sans-serif;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  width: 650px;
+  padding: 18px;
+  transform: scale(2);
+  transform-origin: 0 0;
+  backface-visibility: hidden;
+}
+
+/* 容器样式 */
+.container {
+  background: rgba(255, 255, 255, 0.5);
+  /* 调低透明度，使底层背景更清晰 */
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1),
+    /* 更柔和的外阴影 */ 0 0 30px rgba(255, 255, 255, 0.3) inset;
+  /* 保留内阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* 头像组合样式 */
+.avatar-combo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar-container {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 35px;
+}
+
+.user-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #00a1d6;
+  /* Bilibili 主色调 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(0, 161, 214, 0.3) inset;
+  /* 保留内阴影 */
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.user-avatar.no-border {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.pendant-img {
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(0, 161, 214, 0.3));
+  /* 调整挂件阴影 */
+}
+
+/* 用户信息样式 */
+.user-info {
+  flex: 1;
+  position: relative;
+}
+
+.user-name {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 5px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  max-width: 300px;
+  line-height: 1.3;
+}
+
+.user-sign {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-width: 400px;
+  margin-right: 15px;
+}
+
+.user-uid {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* VIP 样式 */
+.vip-box {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid #ffc0cb;
+  /* Bilibili 红色 */
+  background: rgba(255, 255, 255, 0.2);
+  /* 调低透明度 */
+  text-align: center;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.vip-box.vip {
+  border-color: #ffc0cb;
+  background: rgba(255, 71, 87, 0.1);
+  /* 更深的红色透明背景 */
+}
+
+.senior-text {
+  font-weight: bold;
+  color: #ff4757;
+}
+
+.vip-text {
+  font-weight: bold;
+  color: #ff4757;
+}
+
+.vip-due {
+  color: #666;
+}
+
+/* 挂件名称样式 */
+.pendant-name {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+  /* 渐变色调整 */
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 3;
+  width: max-content;
+}
+
+/* 数据网格样式 */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.data-item {
+  background: rgba(255, 255, 255, 0.2);
+  /* 调低透明度 */
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+
+.data-item:hover {
+  transform: translateY(-3px);
+}
+
+.data-value {
+  font-size: 24px;
+  color: #00a1d6;
+  /* Bilibili 主色调 */
+  margin-bottom: 5px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.data-label {
+  color: #666;
+  font-size: 14px;
+}
+
+/* 状态容器样式 */
+.status-container {
+  display: flex;
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.status-item {
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.status-item.success {
+  background: rgba(232, 245, 233, 0.2);
+  /* 调低透明度 */
+  color: #4caf50;
+}
+
+.status-item.normal {
+  background: rgba(227, 242, 253, 0.2);
+  /* 调低透明度 */
+  color: #2196f3;
+}
+
+.status-item.danger {
+  background: rgba(255, 235, 238, 0.2);
+  /* 调低透明度 */
+  color: #f44336;
+}
+
+/* 经验信息样式 */
+.exp-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.exp-box {
+  background: rgba(255, 255, 255, 0.2);
+  /* 调低透明度 */
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid rgba(225, 240, 255, 0.2);
+  transition: transform 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+
+.exp-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 8px rgba(0, 161, 214, 0.1);
+}
+
+.exp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  font-size: 15px;
+}
+
+.exp-item span:first-child {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.exp-value {
+  color: #00a1d6;
+  /* Bilibili 主色调 */
+  font-size: 20px;
+}
+
+/* 任务容器样式 */
+.task-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.task-item {
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.task-done {
+  background: rgba(232, 245, 233, 0.2);
+  /* 调低透明度 */
+  color: #4caf50;
+  border: 1px solid rgba(200, 230, 201, 0.2);
+}
+
+.task-undone {
+  background: rgba(255, 235, 238, 0.2);
+  /* 调低透明度 */
+  color: #f44336;
+  border: 1px solid rgba(255, 205, 210, 0.2);
+}
+
+/* 底部信息样式 */
+.footer-info {
+  margin-top: 15px;
+  color: #666;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid rgba(200, 200, 200, 0.1);
+  border-bottom: 1px solid rgba(200, 200, 200, 0.1);
+  margin-bottom: 15px;
+}
+
+/* 版权信息样式 */
+.copyright {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  margin-top: 15px;
+  padding-top: 12px;
+  font-weight: 500;
+  opacity: 0.9;
+  border-top: 1px solid rgba(238, 238, 238, 0.4);
+}
+
+/* 暗色模式样式 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: rgba(30, 30, 30, 0.2);
+    /* 暗色模式下透明度更低 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .data-item,
+  .exp-box {
+    background: rgba(50, 50, 50, 0.2);
+    /* 暗色模式下透明度更低 */
+  }
+
+  .user-name {
+    color: #ffffff;
+  }
+
+  .user-sign,
+  .user-uid,
+  .data-label,
+  .exp-item span:first-child,
+  .vip-due,
+  .footer-info,
+  .copyright {
+    color: #ccc;
+    /* 调亮字体颜色 */
+  }
+
+  .pendant-name {
+    background: linear-gradient(45deg, #ff4757, #ff6b81);
+    /* 渐变色调整 */
+    color: #ffffff;
+  }
+
+  .pendant-img {
+    filter: drop-shadow(0 0 8px rgba(255, 75, 75, 0.4));
+    /* 暗色模式阴影调整 */
+  }
+
+  .data-value {
+    color: #00a1d6;
+  }
+
+  .exp-value {
+    color: #00a1d6;
+  }
+
+  .task-done {
+    background: rgba(232, 245, 233, 0.2);
+    color: #4caf50;
+  }
+
+  .task-undone {
+    background: rgba(255, 235, 238, 0.2);
+    color: #f44336;
+  }
+
+  .footer-info {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .copyright {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}
