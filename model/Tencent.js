@@ -32,7 +32,7 @@ class Tencent {
     try {
       let skey, pskey
       let isSuccess = false
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 2; i++) {
         let cookiesStr
         try {
           // skey 在子域名（如 qun.qq.com），p_skey 在父域名 .qq.com
