@@ -35,9 +35,24 @@ class Tencent {
       for (let i = 0; i < 10; i++) {
         let cookiesStr
         try {
-          cookiesStr = Bot[qq].sendApi
-            ? (await Bot[qq].sendApi("get_cookies", { domain })).data.cookies
-            : await Bot[qq].cookies[domain]
+          // skey 在子域名（如 qun.qq.com），p_skey 在父域名 .qq.com
+          // 需要分别请求两个域名的 cookie 再合并
+          const api = Bot[qq].sendApi
+          if (api) {
+            const [subRes, parentRes] = await Promise.allSettled([
+              api("get_cookies", { domain }),
+              api("get_cookies", { domain: "qq.com" })
+            ])
+            const subCookie = subRes.status === "fulfilled" ? subRes.value.data.cookies : ""
+            const parentCookie = parentRes.status === "fulfilled" ? parentRes.value.data.cookies : ""
+            cookiesStr = [subCookie, parentCookie].filter(Boolean).join("; ")
+          } else {
+            const subCookie = Bot[qq].cookies[domain] || ""
+            // p_skey 通常在 .qq.com 域下，尝试从已缓存的子域名 cookie 中获取
+            const parentDomains = ["qzone.qq.com", "qqweb.qq.com", "v.qq.com", "y.qq.com"]
+            const parentCookies = parentDomains.map(d => Bot[qq].cookies[d] || "").filter(Boolean).join("; ")
+            cookiesStr = [subCookie, parentCookies].filter(Boolean).join("; ")
+          }
         } catch (err) {
           logger.error(`第 ${i + 1} 次获取 cookies 失败:`, err)
           continue
