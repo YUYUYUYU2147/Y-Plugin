@@ -30,7 +30,7 @@ export class LuckyWord extends plugin {
     if (isMastere && !e.isMaster) return
     if (isMastere) {
       await e.reply("开始对所有机器人执行抽取幸运字符请稍等....", true, {
-        recallMsg: 5
+        recallMsg: 10
       })
     }
     const botQQNumbers = await Ten.getQQlist()
@@ -40,23 +40,31 @@ export class LuckyWord extends plugin {
     }
     for (const qqNumber of botQQNumbers) {
       try {
-        let skey, pskey
-        const cookies = await Ten.getQQck(qqNumber, "qun.qq.com")
-        if (cookies.code === 0) {
-          skey = cookies.skey
-          pskey = cookies.pskey
-        } else {
-          logger.warn(`账号${qqNumber}获取cookies失败，抽取幸运字符...\n错误信息：${cookies.msg}`)
-          continue
+        if (isMastere) {
+          await e.reply(`正在处理账号 ${qqNumber}...`, true, { recallMsg: 10 })
         }
-        for (const [groupId] of Bot[qqNumber].gl) {
-          if (allowedGroups.includes(groupId)) {
-            for (let i = 0; i < 3; i++) {
-              const result = await Ten.Luckyword(qqNumber, skey, pskey, groupId)
-              if (result.code === 0) {
+        const cookies = await Promise.race([
+          Ten.getQQck(qqNumber, "qun.qq.com"),
+          Ten.sleep(15000).then(() => ({ code: -1, msg: "获取cookies超时(15s)" }))
+        ])
+        if (cookies.code === 0) {
+          const { skey, pskey } = cookies
+          for (const [groupId] of Bot[qqNumber].gl) {
+            if (allowedGroups.includes(groupId)) {
+              for (let i = 0; i < 3; i++) {
+                const result = await Ten.Luckyword(qqNumber, skey, pskey, groupId)
+                if (result.code === 0) break
               }
+              await Ten.sleep(3000)
             }
-            await Ten.sleep(3000)
+          }
+          if (isMastere) {
+            await e.reply(`账号 ${qqNumber} 处理完成`, true, { recallMsg: 10 })
+          }
+        } else {
+          logger.warn(`账号${qqNumber}获取cookies失败: ${cookies.msg}`)
+          if (isMastere) {
+            await e.reply(`账号 ${qqNumber} 跳过: ${cookies.msg}`, true, { recallMsg: 10 })
           }
         }
       } catch (error) {
@@ -64,8 +72,11 @@ export class LuckyWord extends plugin {
           qqNumber,
           error
         })
+        if (isMastere) {
+          await e.reply(`账号 ${qqNumber} 出错: ${error.message}`, true, { recallMsg: 10 })
+        }
       }
     }
-    if (isMastere) await e.reply("机器人执行抽取幸运字符完成", true, { recallMsg: 5 })
+    if (isMastere) await e.reply("机器人执行抽取幸运字符完成", true, { recallMsg: 10 })
   }
 }
