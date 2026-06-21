@@ -70,7 +70,9 @@ export class SendMasterMsgs extends plugin {
         bot: e.bot.uin || Bot.uin,
         group: e.isGroup ? e.group_id : false,
         id: e.user_id,
-        message_id: e.message_id
+        message_id: e.message_id,
+        user: `${e.sender.nickname}(${e.user_id})`,
+        groupName: e.isGroup ? `${e.group.name || "未知群名"}(${e.group_id})` : "私聊"
       }
 
       const masterQQ = Send.getMasterQQ(Config.sendMaster)
@@ -118,14 +120,16 @@ export class SendMasterMsgs extends plugin {
       const data = await redis.get(`${key}:${MsgID}`)
       if (!data) return isInput ? false : e.reply("❎ 消息已失效或不存在")
 
-      const { bot, group, id, message_id } = JSON.parse(data)
-      const _ = common.Replace(e, isInput ? /#?联系回复(\S+)\s?/ : /#?联系回复/g)
+      const { bot, group, id, user, groupName } = JSON.parse(data)
+      let _ = common.Replace(e, isInput ? /#?联系回复(\S+)\s?/ : /#?联系回复/g)
+      if (Array.isArray(_)) _ = _.filter(s => s.type !== 'reply')
       const message = common.parseTemplate(Config.sendMaster.replyMsgTemplate, {
         nickname: e.nickname || "",
         id: String(e.user_id),
+        sender: user || "未知用户",
+        group: groupName || "未知来源",
         msg: _
       })
-      message.unshift(segment.reply(message_id))
 
       this.Bot = Bot[bot] ?? Bot
 
