@@ -22,7 +22,6 @@ export class SendMasterMsgs extends plugin {
           fnc: "contact"
         },
         {
-          reg: ReplyReg,
           fnc: "Replys",
           event: "message.private"
         }
@@ -111,11 +110,9 @@ export class SendMasterMsgs extends plugin {
         MsgID = Send.extractMessageId(source.raw_message)
       } else {
         const regRet = ReplyReg.exec(e.msg)
-        if (!regRet[1]) return logger.warn("未找到消息ID")
-        else {
-          MsgID = regRet[1].trim()
-          isInput = true
-        }
+        if (!regRet?.[1]) return false
+        MsgID = regRet[1].trim()
+        isInput = true
       }
 
       const data = await redis.get(`${key}:${MsgID}`)
