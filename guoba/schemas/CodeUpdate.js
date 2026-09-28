@@ -120,7 +120,8 @@ export default [
         },
         {
           field: 'AutoPath',
-          label: '自动获取本地仓库和插件',
+          label: '自动获取本地仓库',
+          bottomHelpMessage: '自动扫描本地所有 git 仓库（云崽本体与已安装插件），把它们的 remote 地址加入更新检测列表',
           component: 'Switch'
         },
         {
