@@ -1,6 +1,25 @@
 import { Config } from "#components"
 import { logger } from "#lib"
 
+// 服务端（apps/Bili/Api.js）在异常分支会 res.status(500).send("未知错误…") 返回纯文本，
+// 网关/风控也可能返回 HTML 错误页。直接 .json() 会抛 SyntaxError 并掩盖真实原因，
+// 这里统一先读文本、按内容尝试解析，失败时回退为带原始片段的结构化结果。
+async function safeJson(url) {
+  const res = await fetch(url)
+  const text = await res.text()
+  try {
+    return JSON.parse(text)
+  } catch {
+    const snippet = (text || "").trim().replace(/\s+/g, " ").slice(0, 120)
+    logger.warn(`[Tencent] 非 JSON 响应 (HTTP ${res.status}): ${snippet || "(空)"}`)
+    return {
+      code: -1,
+      message: `接口返回非 JSON (HTTP ${res.status}): ${snippet || "(空)"}`,
+      msg: `接口返回非 JSON (HTTP ${res.status}): ${snippet || "(空)"}`
+    }
+  }
+}
+
 class Tencent {
   constructor() {
     this.signApi = `http://localhost:${Config.Bili.Server_Port}/bili`
@@ -133,7 +152,7 @@ class Tencent {
     const qqdaily = `${this.signApi}/qqdaily?uin=${uin}&skey=${skey}&pskey=${pskey}`
     const results = []
     try {
-      const qqdailydataFirst = await (await fetch(qqdaily)).json()
+      const qqdailydataFirst = await safeJson(qqdaily)
       await this.sleep(1500)
       results.push(
         qqdailydataFirst.code === 0
@@ -146,14 +165,14 @@ class Tencent {
       for (let i = 0; i < friendsToShareWith.length; i++) {
         const friend = friendsToShareWith[i]
         const qqshare = `${this.signApi}/qqshare?uin=${uin}&skey=${skey}&pskey=${pskey}&friend=${friend}`
-        const qqsharedata = await (await fetch(qqshare)).json()
+        const qqsharedata = await safeJson(qqshare)
         await this.sleep(1500)
         results.push(
           qqsharedata.code === 0
             ? `分享操作(第${i + 1}次): 成功`
             : `分享(第${i + 1}次): 失败(${qqsharedata.message || qqsharedata.msg || "未知错误"})`
         )
-        const qqdailydataNext = await (await fetch(qqdaily)).json()
+        const qqdailydataNext = await safeJson(qqdaily)
         await this.sleep(1500)
         results.push(
           qqdailydataNext.code === 0
@@ -175,13 +194,13 @@ class Tencent {
     const qqdaily5 = `${this.signApi}/qqdaily5?uin=${uin}&skey=${skey}&pskey=${pskey}`
     const results = []
     try {
-      const qqdaily2data = await (await fetch(qqdaily2)).json()
+      const qqdaily2data = await safeJson(qqdaily2)
       await this.sleep(1500)
-      const qqdaily3data = await (await fetch(qqdaily3)).json()
+      const qqdaily3data = await safeJson(qqdaily3)
       await this.sleep(1500)
-      const qqdaily4data = await (await fetch(qqdaily4)).json()
+      const qqdaily4data = await safeJson(qqdaily4)
       await this.sleep(1500)
-      const qqdaily5data = await (await fetch(qqdaily5)).json()
+      const qqdaily5data = await safeJson(qqdaily5)
       await this.sleep(1500)
       results.push(
         qqdaily2data.code === 0
@@ -213,7 +232,7 @@ class Tencent {
   async Luckyword(uin, skey, pskey, group) {
     const Luckyword = `${this.signApi}/luckyword?uin=${uin}&skey=${skey}&pskey=${pskey}&group=${group}`
     try {
-      const lucky = await (await fetch(Luckyword)).json()
+      const lucky = await safeJson(Luckyword)
       return lucky
     } catch (err) {
       logger.error("群抽幸运字符失败:", err)
