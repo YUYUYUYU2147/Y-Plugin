@@ -13,7 +13,9 @@
 
 ## Fork 本项目
 
-前往[Gitee](https://gitee.com/Lovely-02/Y-Plugin)或[Github](https://gitee.com/Lovely-02/Y-Plugin)项目地址点击仓库上方的`fork`将本项目 fork 到你的账户
+前往本仓库的 [Github](https://github.com/YUYUYUYU2147/Y-Plugin) 地址点击仓库上方的`fork`将本项目 fork 到你的账户
+
+> 原作者 Lovely-02 的仓库（Gitee / GitHub / GitCode）均已删除，链接不再可用。
 
 ## 克隆 fork 后的项目到本地
 

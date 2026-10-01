@@ -1,6 +1,12 @@
 # Y-Plugin (个人维护版)
 
-基于 [Lovely-02/Y-Plugin](https://github.com/Lovely-02/Y-Plugin) 的个人 fork，适用于 [Yunzai-Bot](https://github.com/TimeRainStarSky/Yunzai) / [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai)
+适用于 [Yunzai-Bot](https://github.com/TimeRainStarSky/Yunzai) / [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai)
+
+> **原作者：Lovely-02** —— 其仓库已被删除，GitHub / Gitee / GitCode 上的链接均已不可访问（实测均返回 404）。原作者的 GitHub 账号仍在：<https://github.com/Lovely-02>
+>
+> **现维护者：鱼鱼鱼鱼** —— <https://github.com/YUYUYUYU2147/Y-Plugin>
+>
+> 本仓库与原版已产生分歧，是独立维护的分支，**不保证与原版功能一致**。若需要原始版本，只能通过原作者的 GitHub 账号寻找。
 
 ## 主要修改
 
@@ -20,6 +26,21 @@
 | **@bot 误判修复** | `getTargetUserID` 过滤 bot 自身 @ |
 | **关注列表** | `#我的关注` / `#我的关注列表` |
 | **帮助清理** | 移除无 access_token 不可用的功能条目 |
+
+### 其他修复
+
+以下改动可从本仓库的版本历史逐条追溯。
+
+| 修改 | 说明 |
+|------|------|
+| **`#抽幸运字符` cookie 获取** | 同时请求 `qun.qq.com`(skey) 与 `qq.com`(p_skey) 两个域，修 cookie 取不到 |
+| **`#抽幸运字符` 超时与进度** | 加超时与进度提示，减少 cookie 重试 |
+| **接口返回非 JSON 的处理** | 新增 `safeJson()`。服务端异常分支会返回纯文本、网关风控会返回 HTML 错误页，直接 `.json()` 会抛 `SyntaxError` 把真实原因掩盖掉；改为先读文本按内容尝试解析，失败时回退为带原始片段的结构化结果并记警告 |
+| **引用消息回复联系主人** | 修好该路径 |
+| **联系主人** | 发送者信息存 Redis；过滤主人消息中的回复段 |
+| **锅巴 AutoPath 标签** | 缩短标签，避免被开关遮挡 |
+| **Y 帮助** | 补上非 B 站 app 的功能 |
+| **仓库更新检查** | GitHub API 改走 `gh-proxy`。本机到 `api.github.com` 的链路不稳（实测连续 8 次失败 3 次，HTTP/1.1 与 HTTP/2 均失败），直连会让三个仓库的更新检查一起报错；改走代理后实测 5/5 成功、单次约 0.25 秒 |
 
 ### 已知限制
 

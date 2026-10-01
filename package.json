@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitcode.com/Lovely-02/Y-Plugin.git"
+    "url": "https://github.com/YUYUYUYU2147/Y-Plugin.git"
   },
   "keywords": [
     "Miao-Yunzai",
     "TRSS-Yunzai",
     "Y-Plugin"
   ],
-  "author": "Lovely-02",
+  "author": "Lovely-02（原作者，仓库已删除）/ 鱼鱼鱼鱼（现维护）",
   "license": "GPL-3.0-only",
   "dependencies": {
     "bufferpack": "^0.0.6",
