@@ -34,17 +34,25 @@ export class thumbUp extends plugin {
     let msg = []
     for (let i of Users) {
       let userLog = `用户 ${i} 的点赞日志：\n`
+      // 好友列表 fl 的键是字符串还是数字，取决于 OneBot 实现（NapCat 给字符串，
+      // 部分实现给数字），而 Map 查键类型敏感 —— 类型对不上就查不到，会静默掉进
+      // pickUser 分支。另外锅巴里填纯数字 QQ 时，yaml 会给它加引号存成字符串
+      // （不加引号会被当成数字解析），同一个号存成什么样全看当时怎么填的。
+      // 所以字符串和数字两种形式都准备一份，实际用哪种以 fl 里的键为准。
+      const ids = [String(i)]
+      if (/^\d+$/.test(String(i))) ids.push(Number(i))
       for (let uin of BotUin) {
         let successCount = 0
         for (let attempt = 0; attempt < 10; attempt++) {
           let result
-          if (await Bot[uin].fl.has(i)) {
+          const id = ids.find(v => Bot[uin].fl.has(v))
+          if (id !== undefined) {
             try {
-              result = await Bot[uin].pickFriend(i).thumbUp(10)
+              result = await Bot[uin].pickFriend(id).thumbUp(10)
             } catch {}
           } else {
             try {
-              result = await Bot[uin].pickUser(i).thumbUp(10)
+              result = await Bot[uin].pickUser(ids[0]).thumbUp(10)
             } catch {}
           }
           if (result) {
