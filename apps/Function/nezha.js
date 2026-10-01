@@ -12,11 +12,11 @@ export class ServerDetails extends plugin {
       priority: Config.other.priority,
       rule: [
         {
-            // 三支：哪吒系列、1Panel 系列、以及不点名的通用名。
-            // 通用名这一支是给「面板类型」这个配置项留入口的 —— 之前规则只认
-            // 带面板名的指令，panelType 配了也没机会被读到，敲什么走什么。
-            // 现在敲 #服务器面板 不带名字，才会回落到配置里的 panelType。
-            reg: /^#?(?:(nz|nezha|哪吒)(面板|探针)|(1panel|1Panel|1panal|1Panal)(面板|状态|探针)?|(服务器面板|主机面板|面板))$/,
+          // 三支：哪吒系列、1Panel 系列、以及不点名的通用名。
+          // 通用名这一支是给「面板类型」这个配置项留入口的 —— 之前规则只认
+          // 带面板名的指令，panelType 配了也没机会被读到，敲什么走什么。
+          // 现在敲 #服务器面板 不带名字，才会回落到配置里的 panelType。
+          reg: /^#?(?:(nz|nezha|哪吒)(面板|探针)|(1panel|1Panel|1panal|1Panal)(面板|状态|探针)?|(服务器面板|主机面板|面板))$/,
           fnc: "mb"
         }
       ]
@@ -74,7 +74,7 @@ export class ServerDetails extends plugin {
       message: [
         `${this.getFlagEmoji(mb.geoip?.country_code)} 名称：${mb.name || "未知"}`,
         `id：${mb.id || "未知"}`,
-        ...(e.isGroup ? [] : [`V4：${mb.geoip?.ip?.ipv4_addr || "未知"}`, `V6：${mb.geoip?.ip?.ipv6_addr || "未知"}`]),
+        ...(e.isGroup ? [] : [ `V4：${mb.geoip?.ip?.ipv4_addr || "未知"}`, `V6：${mb.geoip?.ip?.ipv6_addr || "未知"}` ]),
         `系统：${mb.host?.platform || "未知"} ${mb.host?.platform_version || ""} [${mb.host?.arch || "未知"}]`,
         `CPU：${mb.host?.cpu ? mb.host.cpu.join(", ") : "未知"}`,
         `GPU：${mb.host?.gpu ? mb.host.gpu.join(", ") : "未知"}`,
@@ -127,7 +127,7 @@ export class ServerDetails extends plugin {
       `名称：${title}`,
       `面板：1Panel ${data.version}`,
       `主机：${base.hostname || "未知"}`,
-      `系统：${base.prettyDistro || [base.platform, base.platformVersion].filter(Boolean).join(" ") || base.os || "未知"} [${base.kernelArch || "未知"}]`,
+      `系统：${base.prettyDistro || [ base.platform, base.platformVersion ].filter(Boolean).join(" ") || base.os || "未知"} [${base.kernelArch || "未知"}]`,
       `内核：${base.kernelVersion || "未知"}`,
       `CPU：${base.cpuModelName || "未知"} (${base.cpuLogicalCores || cur.cpuTotal || "?"} 线程)`,
       `使用：${this.formatPercent(cur.cpuUsedPercent)}`,
@@ -139,8 +139,8 @@ export class ServerDetails extends plugin {
       `负载：${this.formatNumber(cur.load1)} / ${this.formatNumber(cur.load5)} / ${this.formatNumber(cur.load15)}`,
       `进程：${cur.procs ?? "未知"}`,
       `运行：${this.formatRunningTime(cur)}`,
-      ...(gpuLine ? [`加速卡：${gpuLine}`] : []),
-      ...(topLines.length ? ["", ...topLines] : [])
+      ...(gpuLine ? [ `加速卡：${gpuLine}` ] : []),
+      ...(topLines.length ? [ "", ...topLines ] : [])
     ]
     return e.reply(lines.join("\n"), true)
   }
@@ -153,12 +153,14 @@ export class ServerDetails extends plugin {
    * 而 1Panel-Token / 1Panel-Timestamp 这套 API Key 鉴权是 v2 才有的
    * （只在 core/app/auth/api_auth.go，v1 的 backend/ 里搜不到）。
    * 所以拿 API Key 查 v1 的 /api/v1/dashboard/... 一定失败，v1 兜底是死代码。
+   * @param baseUrl
+   * @param apiKey
    */
   async loadOnePanel(baseUrl, apiKey) {
     const errors = []
     for (const auth of this.onePanelAuthModes()) {
       try {
-        const base = await this.onePanelJson(baseUrl, apiKey, "v2", "/api/v2/dashboard/base/all/all", auth)
+        const base = await this.onePanelJson(baseUrl, apiKey, "/api/v2/dashboard/base/all/all", auth)
         // Top 进程是附加信息，取不到就少两行，不该让整个查询失败
         const topCpu = await this.onePanelTop(baseUrl, apiKey, "cpu", auth)
         const topMem = await this.onePanelTop(baseUrl, apiKey, "mem", auth)
@@ -170,7 +172,13 @@ export class ServerDetails extends plugin {
     throw new Error(errors.join("；") || "1Panel API 无返回")
   }
 
-  /** Top 进程单独兜错：v1 没有这个接口、或权限不足时都只影响这两行 */
+  /**
+   * Top 进程单独兜错：v1 没有这个接口、或权限不足时都只影响这两行
+   * @param baseUrl
+   * @param apiKey
+   * @param kind
+   * @param auth
+   */
   async onePanelTop(baseUrl, apiKey, kind, auth) {
     try {
       const data = await this.onePanelJson(baseUrl, apiKey, `/api/v2/dashboard/current/top/${kind}`, auth)
@@ -182,7 +190,7 @@ export class ServerDetails extends plugin {
 
   /** 两种签名都试：hmac 是 2.x 主推的，md5 兼容旧版 */
   onePanelAuthModes() {
-    return ["hmac", "md5"]
+    return [ "hmac", "md5" ]
   }
 
   async onePanelJson(baseUrl, apiKey, path, authMode) {
@@ -290,6 +298,9 @@ export class ServerDetails extends plugin {
    * Top 进程。1Panel 的 dashboard 路由在 agent 侧（agent/router/ro_dashboard.go），
    * core 的启动日志里不打印，所以别照着 core 的路由表找。
    * 返回的是 [{ name, pid, percent, memory, cmd }]，各版本字段可能缺，逐项兜底。
+   * @param topCpu
+   * @param topMem
+   * @param limit
    */
   formatTopProcesses(topCpu = [], topMem = [], limit = 3) {
     const brief = (list, render) => {
@@ -315,7 +326,7 @@ export class ServerDetails extends plugin {
       ...(Array.isArray(cur.xpuData) ? cur.xpuData : [])
     ]
     return list
-      .map(i => [i.productName || i.deviceName || i.type, i.gpuUtil || i.memoryUtil, i.temperature].filter(Boolean).join(" "))
+      .map(i => [ i.productName || i.deviceName || i.type, i.gpuUtil || i.memoryUtil, i.temperature ].filter(Boolean).join(" "))
       .filter(Boolean)
       .join("；")
   }
