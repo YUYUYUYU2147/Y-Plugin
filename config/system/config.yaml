@@ -24,7 +24,7 @@ CodeUpdate:
   repos:
     - provider: 'GitHub'
       token: ''
-      ApiUrl: 'https://api.github.com/repos'
+      ApiUrl: 'https://gh-proxy.com/https://api.github.com/repos'
       icon: 'GitHub'
       tips: Github个人Token 获取地址 https://github.com/settings/tokens
     - provider: 'Gitee'
