@@ -109,9 +109,6 @@ other:
   onePanelKeyTips: |-
     1Panel API Key
   onePanelKey: ''
-  onePanelVersionTips: |-
-    1Panel API 版本，v2.3.x 请选择 v2；不确定可选 auto
-  onePanelVersion: auto
   onePanelNameTips: |-
     1Panel 显示名称
   onePanelName: ''

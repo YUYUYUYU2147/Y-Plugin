@@ -12,7 +12,11 @@ export class ServerDetails extends plugin {
       priority: Config.other.priority,
       rule: [
         {
-          reg: /^#?(?:(nz|nezha|哪吒)(面板|探针)|(1panel|1Panel|1panal|1Panal)(面板|状态|探针)?)$/,
+            // 三支：哪吒系列、1Panel 系列、以及不点名的通用名。
+            // 通用名这一支是给「面板类型」这个配置项留入口的 —— 之前规则只认
+            // 带面板名的指令，panelType 配了也没机会被读到，敲什么走什么。
+            // 现在敲 #服务器面板 不带名字，才会回落到配置里的 panelType。
+            reg: /^#?(?:(nz|nezha|哪吒)(面板|探针)|(1panel|1Panel|1panal|1Panal)(面板|状态|探针)?|(服务器面板|主机面板|面板))$/,
           fnc: "mb"
         }
       ]
@@ -105,7 +109,6 @@ export class ServerDetails extends plugin {
     const {
       onePanelIP,
       onePanelKey,
-      onePanelVersion = "auto",
       onePanelName,
       nezhaIP
     } = Config.other
@@ -113,7 +116,7 @@ export class ServerDetails extends plugin {
     const apiKey = String(onePanelKey || "").trim()
     if (!baseUrl || !apiKey) return e.reply("1Panel 配置不完整，请在锅巴填写 1Panel 地址和 API Key。", true)
 
-    const data = await this.loadOnePanel(baseUrl, apiKey, onePanelVersion)
+    const data = await this.loadOnePanel(baseUrl, apiKey)
     const base = data.base || {}
     const cur = data.current || base.currentInfo || {}
     const disk = this.pickDisk(cur.diskData)
@@ -142,44 +145,47 @@ export class ServerDetails extends plugin {
     return e.reply(lines.join("\n"), true)
   }
 
-  async loadOnePanel(baseUrl, apiKey, version = "auto") {
-    const versions = String(version || "auto").toLowerCase() === "auto"
-      ? ["v2", "v1"]
-      : [String(version).toLowerCase()]
+  /**
+   * 只支持 v2。
+   *
+   * v1 的 dashboard 挂在登录态中间件上（v1.9.6 backend/router/ro_dashboard.go）：
+   *   cmdRouter := Router.Group("dashboard").Use(middleware.JwtAuth()).Use(middleware.SessionAuth())
+   * 而 1Panel-Token / 1Panel-Timestamp 这套 API Key 鉴权是 v2 才有的
+   * （只在 core/app/auth/api_auth.go，v1 的 backend/ 里搜不到）。
+   * 所以拿 API Key 查 v1 的 /api/v1/dashboard/... 一定失败，v1 兜底是死代码。
+   */
+  async loadOnePanel(baseUrl, apiKey) {
     const errors = []
-    for (const ver of versions) {
-      for (const auth of this.onePanelAuthModes(ver)) {
-        try {
-          const base = await this.onePanelJson(baseUrl, apiKey, ver, `/api/${ver}/dashboard/base/all/all`, auth)
-          // Top 进程是附加信息，取不到就少两行，不该让整个查询失败
-          const topCpu = await this.onePanelTop(baseUrl, apiKey, ver, "cpu", auth)
-          const topMem = await this.onePanelTop(baseUrl, apiKey, ver, "mem", auth)
-          return { version: `${ver}/${auth}`, base, current: base?.currentInfo || {}, topCpu, topMem }
-        } catch (err) {
-          errors.push(`${ver}/${auth}: ${err.message}`)
-        }
+    for (const auth of this.onePanelAuthModes()) {
+      try {
+        const base = await this.onePanelJson(baseUrl, apiKey, "v2", "/api/v2/dashboard/base/all/all", auth)
+        // Top 进程是附加信息，取不到就少两行，不该让整个查询失败
+        const topCpu = await this.onePanelTop(baseUrl, apiKey, "cpu", auth)
+        const topMem = await this.onePanelTop(baseUrl, apiKey, "mem", auth)
+        return { version: `v2/${auth}`, base, current: base?.currentInfo || {}, topCpu, topMem }
+      } catch (err) {
+        errors.push(`v2/${auth}: ${err.message}`)
       }
     }
     throw new Error(errors.join("；") || "1Panel API 无返回")
   }
 
   /** Top 进程单独兜错：v1 没有这个接口、或权限不足时都只影响这两行 */
-  async onePanelTop(baseUrl, apiKey, ver, kind, auth) {
+  async onePanelTop(baseUrl, apiKey, kind, auth) {
     try {
-      const data = await this.onePanelJson(
-        baseUrl, apiKey, ver, `/api/${ver}/dashboard/current/top/${kind}`, auth
-      )
+      const data = await this.onePanelJson(baseUrl, apiKey, `/api/v2/dashboard/current/top/${kind}`, auth)
       return Array.isArray(data) ? data : []
     } catch {
       return []
     }
   }
 
-  onePanelAuthModes(version) {
-    return version === "v2" ? ["hmac", "md5"] : ["md5"]
+  /** 两种签名都试：hmac 是 2.x 主推的，md5 兼容旧版 */
+  onePanelAuthModes() {
+    return ["hmac", "md5"]
   }
 
-  async onePanelJson(baseUrl, apiKey, version, path, authMode) {
+  async onePanelJson(baseUrl, apiKey, path, authMode) {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 15000)
     try {

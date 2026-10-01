@@ -167,7 +167,7 @@ export default [
     field: "other.onePanelIP",
     helpMessage: "用于请求 1Panel",
     label: "1Panel 地址",
-      bottomHelpMessage: "填到端口即可，如 http://127.0.0.1:2147；不要带 /api/vx，也不用填安全入口",
+    bottomHelpMessage: "填到端口即可，如 http://127.0.0.1:2147；不要带 /api/vx，也不用填安全入口",
     componentProps: {
       placeholder: "请输入 1Panel 地址"
     },
@@ -175,26 +175,13 @@ export default [
   },
   {
     field: "other.onePanelKey",
-      helpMessage: "1Panel 面板设置里开启「API 接口」并生成 Key。部分版本（如 v2.2.5）界面上没有该入口，需在面板数据库中启用",
+    helpMessage: "1Panel 面板设置里开启「API 接口」并生成 Key。部分版本（如 v2.2.5）界面上没有该入口，需在面板数据库中启用",
     label: "1Panel API Key",
     componentProps: {
       placeholder: "请输入 API Key",
       type: "password"
     },
     component: "Input"
-  },
-  {
-    field: "other.onePanelVersion",
-      helpMessage: "1Panel 2.x 用 v2（实测 v2.2.5 走 v2）；不确定时选 auto",
-    label: "1Panel API 版本",
-    componentProps: {
-      options: [
-        { label: "自动尝试", value: "auto" },
-        { label: "v2", value: "v2" },
-        { label: "v1", value: "v1" }
-      ]
-    },
-    component: "Select"
   },
   {
     field: "other.onePanelName",
