@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{_res_path}}/ServerPanel/panel.css">
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="head">
+            <div class="title">
+                <span class="name">{{title}}</span>
+                <span class="badge">{{version}}</span>
+            </div>
+            <div class="sub">{{hostname}} · {{distro}} [{{arch}}] · kernel {{kernel}}</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="k">CPU</div>
+                <div class="v">{{cpuModel}}</div>
+                <div class="d">{{cpuCores}} 线程 · 占用 {{cpuUsed}}</div>
+                <div class="bar"><i style="width:{{cpuUsedBar}}%"></i></div>
+            </div>
+            <div class="card">
+                <div class="k">内存</div>
+                <div class="v">{{memUsed}} / {{memTotal}}</div>
+                <div class="d">占用 {{memUsedPct}}</div>
+                <div class="bar"><i class="{{memLevel}}" style="width:{{memUsedBar}}%"></i></div>
+            </div>
+            <div class="card">
+                <div class="k">磁盘</div>
+                <div class="v">{{diskUsed}} / {{diskTotal}}</div>
+                <div class="d">占用 {{diskUsedPct}}</div>
+                <div class="bar"><i class="{{diskLevel}}" style="width:{{diskUsedPct}}"></i></div>
+            </div>
+            <div class="card">
+                <div class="k">交换</div>
+                <div class="v">{{swapUsed}} / {{swapTotal}}</div>
+                <div class="d">占用 {{swapUsedPct}}</div>
+                <div class="bar"><i class="{{swapLevel}}" style="width:{{swapUsedPct}}"></i></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="kv"><span>负载</span><b>{{load1}} / {{load5}} / {{load15}}</b></div>
+            <div class="kv"><span>进程</span><b>{{procs}}</b></div>
+            <div class="kv"><span>运行</span><b>{{uptime}}</b></div>
+        </div>
+
+        <div class="row">
+            <div class="kv"><span>流量</span><b>↓ {{netIn}} &nbsp; ↑ {{netOut}}</b></div>
+            <div class="kv"><span>磁盘 IO</span><b>读 {{ioRead}} &nbsp; 写 {{ioWrite}}</b></div>
+        </div>
+
+        {{if gpu}}
+        <div class="row">
+            <div class="kv"><span>加速卡</span><b>{{gpu}}</b></div>
+        </div>
+        {{/if}}
+
+        {{if topCpu}}
+        <div class="top">
+            <div class="top-h">CPU 占用 TOP{{topLimit}}</div>
+            {{each topCpu row}}
+            <div class="top-i">
+                <span class="idx">{{row.idx}}</span>
+                <span class="nm">{{row.name}}</span>
+                <span class="pid">pid {{row.pid}}</span>
+                <span class="track"><i style="width:{{row.bar}}%"></i></span>
+                <span class="pc">{{row.percent}}</span>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+
+        {{if topMem}}
+        <div class="top">
+            <div class="top-h">内存占用 TOP{{topLimit}}</div>
+            {{each topMem row}}
+            <div class="top-i">
+                <span class="idx">{{row.idx}}</span>
+                <span class="nm">{{row.name}}</span>
+                <span class="pid">pid {{row.pid}}</span>
+                <span class="track mem"><i style="width:{{row.bar}}%"></i></span>
+                <span class="pc">{{row.size}}</span>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+
+        <div class="foot">{{foot}}</div>
+    </div>
+</body>
+
+</html>

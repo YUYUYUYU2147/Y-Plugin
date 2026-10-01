@@ -1,4 +1,4 @@
-import { Config } from "#components"
+import { Config, common } from "#components"
 import moment from "moment"
 import { logger } from "#lib"
 import crypto from "node:crypto"
@@ -142,7 +142,85 @@ export class ServerDetails extends plugin {
       ...(gpuLine ? [ `加速卡：${gpuLine}` ] : []),
       ...(topLines.length ? [ "", ...topLines ] : [])
     ]
-    return e.reply(lines.join("\n"), true)
+    const text = lines.join("\n")
+    // 出图失败时退回文字，不能因为渲染环境有问题就完全没回应
+    try {
+      const msg = await common.render("ServerPanel/panel", this.buildPanelParams({
+        data, base, cur, disk, title, gpuLine
+      }), { e, scale: 1 })
+      return e.reply(msg, true)
+    } catch (err) {
+      logger.error(`[Y][server-panel] 渲染失败，退回文字: ${err?.message || err}`)
+      return e.reply(text, true)
+    }
+  }
+
+  /**
+   * 把接口数据摊成模板要的字段。格式化和取名都收在这里，模板里只做展示。
+   * 百分比给「带 %」的文本，进度条另给一个纯数字，两者不能混用。
+   */
+  buildPanelParams({ data, base, cur, disk, title, gpuLine }) {
+    const pct = (v) => {
+      if (v === undefined || v === null || Number.isNaN(Number(v))) return 0
+      return Math.max(0, Math.min(100, Number(v)))
+    }
+    // 占用越高颜色越警示，模板里按 class 切换
+    const level = (v) => (v >= 90 ? "danger" : v >= 75 ? "warn" : "")
+    const topLimit = 3
+    const cpuRaw = Array.isArray(data.topCpu) ? data.topCpu : []
+    const memRaw = Array.isArray(data.topMem) ? data.topMem : []
+    // 进度条按本组最大值归一，否则三个条永远一根满、一根几乎看不见
+    const cpuMax = Math.max(...cpuRaw.map(i => Number(i.percent) || 0), 1)
+    const memMax = Math.max(...memRaw.map(i => Number(i.memory) || 0), 1)
+    const pick = (list, render) => list.slice(0, topLimit).map((i, idx) => ({
+      idx: idx + 1, name: i.name || "未知", pid: i.pid ?? "?", ...render(i)
+    }))
+
+    return {
+      title,
+      version: `1Panel ${data.version}`,
+      hostname: base.hostname || "未知",
+      distro: base.prettyDistro || [ base.platform, base.platformVersion ].filter(Boolean).join(" ") || base.os || "未知",
+      arch: base.kernelArch || "未知",
+      kernel: base.kernelVersion || "未知",
+      cpuModel: base.cpuModelName || "未知",
+      cpuCores: base.cpuLogicalCores || cur.cpuTotal || "?",
+      cpuUsed: this.formatPercent(cur.cpuUsedPercent),
+      cpuUsedBar: pct(cur.cpuUsedPercent).toFixed(1),
+      memUsed: this.formatSize(cur.memoryUsed),
+      memTotal: this.formatSize(cur.memoryTotal),
+      memUsedPct: this.formatPercent(cur.memoryUsedPercent),
+      memUsedBar: pct(cur.memoryUsedPercent).toFixed(1),
+      memLevel: level(pct(cur.memoryUsedPercent)),
+      swapUsed: this.formatSize(cur.swapMemoryUsed),
+      swapTotal: this.formatSize(cur.swapMemoryTotal),
+      swapUsedPct: this.formatPercent(cur.swapMemoryUsedPercent),
+      swapLevel: level(pct(cur.swapMemoryUsedPercent)),
+      diskUsed: disk ? this.formatSize(disk.used) : "未知",
+      diskTotal: disk ? this.formatSize(disk.total) : "未知",
+      diskUsedPct: disk ? this.formatPercent(disk.usedPercent) : "未知",
+      diskLevel: disk ? level(pct(disk.usedPercent)) : "",
+      load1: this.formatNumber(cur.load1),
+      load5: this.formatNumber(cur.load5),
+      load15: this.formatNumber(cur.load15),
+      procs: cur.procs ?? "未知",
+      uptime: this.formatRunningTime(cur),
+      netIn: this.formatSize(cur.netBytesRecv),
+      netOut: this.formatSize(cur.netBytesSent),
+      ioRead: this.formatSize(cur.ioReadBytes),
+      ioWrite: this.formatSize(cur.ioWriteBytes),
+      gpu: gpuLine || "",
+      topLimit,
+      topCpu: pick(cpuRaw, (i) => ({
+        percent: this.formatPercent(i.percent),
+        bar: ((Number(i.percent) || 0) / cpuMax * 100).toFixed(1)
+      })),
+      topMem: pick(memRaw, (i) => ({
+        size: this.formatSize(i.memory),
+        bar: ((Number(i.memory) || 0) / memMax * 100).toFixed(1)
+      })),
+      foot: `1Panel ${data.version} · ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}`
+    }
   }
 
   /**
