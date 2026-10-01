@@ -20,11 +20,21 @@ export const helpList = [
         title: "Git仓库更新推送",
         desc: "前往Guoba或插件内配置"
       },
-      {
-        icon: 2,
-        title: "服务器面板",
-        desc: "前往Guoba或插件内配置"
-      },
+        {
+          icon: 2,
+          title: "#1panel / #服务器面板 / #面板",
+          desc: "查看服务器状态（CPU、内存、磁盘、负载、Top 进程）"
+        },
+        {
+          icon: 2,
+          title: "#哪吒面板 / #nz面板",
+          desc: "查看哪吒面板（需在 Guoba 把「面板类型」切到 nezha）"
+        },
+        {
+          icon: 2,
+          title: "#开启/关闭涩涩功能",
+          desc: "开关验车（磁力链接预览）"
+        },
       {
         icon: 3,
         title: "天气",
