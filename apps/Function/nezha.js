@@ -188,11 +188,42 @@ export class ServerDetails extends plugin {
     }
   }
 
-  /** 两种签名都试：hmac 是 2.x 主推的，md5 兼容旧版 */
+  /**
+   * 两种签名都试：hmac 是 2.x 主推的，md5 兼容旧版。
+   *
+   * 签名算法见 1Panel core/app/auth/api_auth.go：
+   *   md5:    GenerateMD5("1panel" + apiKey + timestamp)
+   *   hmac:   GenerateHMACSHA256(apiKey, "1panel:" + timestamp)   ← 注意 "1panel:" 有冒号
+   * 两个都要带上 1Panel-Token 与 1Panel-Timestamp（Unix 秒）两个头。
+   * 实测 hmac 在 v2.2.5 上可用，md5 同样可用，作为兜底。
+   */
   onePanelAuthModes() {
     return [ "hmac", "md5" ]
   }
 
+  /**
+   * 请求 1Panel 面板。
+   *
+   * 端点是 /api/v2/dashboard/base/all/all，对应 agent/router/ro_dashboard.go 里的
+   *   cmdRouter.GET("/base/:ioOption/:netOption", baseApi.LoadDashboardBaseInfo)
+   * 两个 all 是 ioOption 与 netOption，都传 all 才有完整的 IO 与网络数据。
+   *
+   * 两处容易踩的坑：
+   *
+   * 1. URL 不带安全入口。1Panel 开了「安全入口」后，/<入口>/api/v2/... 反而 404，
+   *    不带才通 —— 所以 onePanelIP 只填到端口，别拼入口。
+   *    这点与浏览器访问面板的直觉相反，别顺手把入口加上去。
+   *
+   * 2. Key 有效期。面板侧 core/app/auth/api_auth.go 的 IsValid1PanelTimestamp：
+   *        if apiTime < 0 { return false }
+   *        if apiTime == 0 { return true }        ← 0 表示永不过期
+   *        return nowTime-panelTime <= apiTime*60 + 60
+   *    所以面板数据库里 ApiKeyValidityTime 填 0 才是永久有效，调大只是延长时间。
+   * @param baseUrl
+   * @param apiKey
+   * @param path
+   * @param authMode
+   */
   async onePanelJson(baseUrl, apiKey, path, authMode) {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 15000)

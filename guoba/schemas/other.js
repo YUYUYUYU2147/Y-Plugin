@@ -175,7 +175,7 @@ export default [
   },
   {
     field: "other.onePanelKey",
-    helpMessage: "1Panel 面板设置里开启「API 接口」并生成 Key。部分版本（如 v2.2.5）界面上没有该入口，需在面板数据库中启用",
+    helpMessage: "1Panel 面板设置里开启「API 接口」并生成 Key。部分版本（如 v2.2.5）界面上没有该入口，需在面板数据库中启用。面板数据库里 ApiKeyValidityTime 填 0 表示永不过期",
     label: "1Panel API Key",
     componentProps: {
       placeholder: "请输入 API Key",
