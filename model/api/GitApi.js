@@ -8,6 +8,20 @@ const GitUrl = {
   CNB: 'https://api.cnb.cool'
 }
 
+/**
+ * 日志里打 URL 前必须过这个。
+ *
+ * 访问令牌是作为查询参数挂在 URL 上的（见下方 urlObj.searchParams.set('access_token', token)），
+ * 而错误分支会把完整 URL 写进日志。实测 logs/error.log 里因此积了 34 处明文
+ * token，而且链路越不稳、报错越多，抄写得越勤。
+ *
+ * 按名字脱敏而不是只针对 access_token：Gitee / GitCode 的令牌字段名不同，
+ * 将来换数据源也不会又漏出去。
+ */
+const SENSITIVE_QUERY = /([?&](?:access_token|token|api_key|apikey|secret|password)=)[^&#\s]*/gi
+
+export const redactUrl = url => String(url ?? '').replace(SENSITIVE_QUERY, '$1***')
+
 const ApiUrl = source => {
   const CfgApiUrl = Config.CodeUpdate.repos.reduce((acc, item) => {
     acc[item.provider] = item.ApiUrl
@@ -98,7 +112,7 @@ export default new (class {
       const data = await this.fetchData(urlObj.toString(), headers, repo, source)
       return data || 'return'
     } catch (err) {
-      logger.error('获取仓库数据失败', { url: urlObj.toString(), err })
+      logger.error('获取仓库数据失败', { url: redactUrl(urlObj.toString()), err })
       return 'return'
     }
   }
@@ -194,13 +208,13 @@ export default new (class {
 
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        logger.error(`响应非 JSON 格式: ${url} , 内容：${await response.text()}`)
+        logger.error(`响应非 JSON 格式: ${redactUrl(url)} , 内容：${await response.text()}`)
         return false
       }
 
       return await response.json()
     } catch (error) {
-      logger.error(`请求失败: ${url}，错误信息: ${error.stack}`)
+      logger.error(`请求失败: ${redactUrl(url)}，错误信息: ${error.stack}`)
       return false
     }
   }
