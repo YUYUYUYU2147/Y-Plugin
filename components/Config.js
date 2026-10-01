@@ -25,8 +25,8 @@ class Config {
     const { config, configSave } = await makeConfig(this.plugin_name, this.config, keep, {
       replacer: i => i.replace(/(\n.+?Tips:)/g, '\n$1')
     })
-    this.config = config
-    this.configSave = configSave
+      this.config = config
+      this.configSave = this.wrapSave(configSave)
 
     /** 迁移 v1 配置 */
     const key = 'Y:config:migration:v1-v2'
@@ -72,6 +72,35 @@ class Config {
     }
 
     return this
+  }
+
+  /**
+   * 落盘前把「纯数字但存成字符串」的列表条目转回数字。
+   *
+   * 锅巴里填 QQ 号时提交的是字符串，YAML.stringify 见到它长得像数字就会加引号
+   * 保住字符串类型，写出来是这样：
+   *
+   *     DZList:
+   *         - 2147014323
+   *         - "123456789"
+   *
+   * 同一个列表于是混着数字和字符串两种类型。而自动点赞那边比对的是好友列表
+   * fl 的键（这台机器上是数字），Map 查键类型敏感，字符串那几条匹配不上，
+   * 会静默掉进 pickUser 分支。
+   *
+   * 这里只动 other.DZList —— 同为数字列表的 other.SeseList 不能转：它是用
+   * includes 比从指令里 match 出来的字符串，转成数字反而会让白名单失效。
+   */
+  wrapSave(rawSave) {
+    return async () => {
+      const list = this.config?.other?.DZList
+      if (Array.isArray(list)) {
+        this.config.other.DZList = list.map(v =>
+          typeof v === 'string' && /^\d+$/.test(v.trim()) ? Number(v.trim()) : v
+        )
+      }
+      return rawSave()
+    }
   }
 
   /** 主人列表 */
