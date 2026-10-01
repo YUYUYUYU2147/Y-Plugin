@@ -113,6 +113,7 @@ export class ServerDetails extends plugin {
     const disk = this.pickDisk(cur.diskData)
     const title = onePanelName || base.hostname || "1Panel"
     const gpuLine = this.formatAccelerators(cur)
+    const topLines = this.formatTopProcesses(data.topCpu, data.topMem)
     const lines = [
       `名称：${title}`,
       `面板：1Panel ${data.version}`,
@@ -129,7 +130,8 @@ export class ServerDetails extends plugin {
       `负载：${this.formatNumber(cur.load1)} / ${this.formatNumber(cur.load5)} / ${this.formatNumber(cur.load15)}`,
       `进程：${cur.procs ?? "未知"}`,
       `运行：${this.formatRunningTime(cur)}`,
-      ...(gpuLine ? [`加速卡：${gpuLine}`] : [])
+      ...(gpuLine ? [`加速卡：${gpuLine}`] : []),
+      ...(topLines.length ? ["", ...topLines] : [])
     ]
     return e.reply(lines.join("\n"), true)
   }
@@ -143,13 +145,28 @@ export class ServerDetails extends plugin {
       for (const auth of this.onePanelAuthModes(ver)) {
         try {
           const base = await this.onePanelJson(baseUrl, apiKey, ver, `/api/${ver}/dashboard/base/all/all`, auth)
-          return { version: `${ver}/${auth}`, base, current: base?.currentInfo || {} }
+          // Top 进程是附加信息，取不到就少两行，不该让整个查询失败
+          const topCpu = await this.onePanelTop(baseUrl, apiKey, ver, "cpu", auth)
+          const topMem = await this.onePanelTop(baseUrl, apiKey, ver, "mem", auth)
+          return { version: `${ver}/${auth}`, base, current: base?.currentInfo || {}, topCpu, topMem }
         } catch (err) {
           errors.push(`${ver}/${auth}: ${err.message}`)
         }
       }
     }
     throw new Error(errors.join("；") || "1Panel API 无返回")
+  }
+
+  /** Top 进程单独兜错：v1 没有这个接口、或权限不足时都只影响这两行 */
+  async onePanelTop(baseUrl, apiKey, ver, kind, auth) {
+    try {
+      const data = await this.onePanelJson(
+        baseUrl, apiKey, ver, `/api/${ver}/dashboard/current/top/${kind}`, auth
+      )
+      return Array.isArray(data) ? data : []
+    } catch {
+      return []
+    }
   }
 
   onePanelAuthModes(version) {
@@ -255,6 +272,28 @@ export class ServerDetails extends plugin {
     }), {})
     if (!disk.usedPercent && disk.total) disk.usedPercent = disk.used / disk.total * 100
     return disk
+  }
+
+  /**
+   * Top 进程。1Panel 的 dashboard 路由在 agent 侧（agent/router/ro_dashboard.go），
+   * core 的启动日志里不打印，所以别照着 core 的路由表找。
+   * 返回的是 [{ name, pid, percent, memory, cmd }]，各版本字段可能缺，逐项兜底。
+   */
+  formatTopProcesses(topCpu = [], topMem = [], limit = 3) {
+    const brief = (list, render) => {
+      if (!Array.isArray(list) || !list.length) return ""
+      return list
+        .filter(i => i && (i.name || i.cmd))
+        .slice(0, limit)
+        .map((i, idx) => `${idx + 1}. ${i.name || "未知"}(${i.pid ?? "?"}) ${render(i)}`)
+        .join(" / ")
+    }
+    const lines = []
+    const cpu = brief(topCpu, (i) => this.formatPercent(i.percent))
+    const mem = brief(topMem, (i) => this.formatSize(i.memory))
+    if (cpu) lines.push(`CPU 占用 TOP${limit}：${cpu}`)
+    if (mem) lines.push(`内存占用 TOP${limit}：${mem}`)
+    return lines
   }
 
   formatAccelerators(cur = {}) {
