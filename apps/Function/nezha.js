@@ -22,7 +22,13 @@ export class ServerDetails extends plugin {
   async mb(e) {
     if (!e.isMaster) return
     const msg = String(e.msg || "")
-    const type = /1pan(?:el|al)/i.test(msg) ? "1panel" : String(Config.other.panelType || "1panel").toLowerCase()
+    // 指令里带了哪个面板名就按哪个来，两个都没带才读配置。
+    // 之前只判 1Panel，#哪吒面板 / #nz面板 这类会落到配置里的 panelType，
+    // 而默认是 1Panel —— 结果敲哪吒的指令却去查 1Panel。
+    let type
+    if (/1pan(?:el|al)/i.test(msg)) type = "1panel"
+    else if (/(nz|nezha|哪吒)/i.test(msg)) type = "nezha"
+    else type = String(Config.other.panelType || "1panel").toLowerCase()
     try {
       if (type === "1panel") return await this.onePanel(e)
       return await this.nezha(e)
