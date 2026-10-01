@@ -7,24 +7,61 @@
 body {
     width: 900px;
     font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-    /* 背景图铺在最上层，深色渐变叠在它上面压暗，保证卡片文字仍然清楚 */
-    background-image: var(--panel-bg, none), linear-gradient(160deg, rgba(9, 14, 25, .84) 0%, rgba(8, 12, 22, .89) 60%, rgba(6, 10, 18, .93) 100%);
+    /* 背景图是浅色插画，所以整体走浅色主题：白蒙版压住底图，正文用深色字。
+       蒙版再重一点字会糊，再轻一点底图会抢戏，0.62 是试出来的折中值 */
+    background-image: var(--panel-bg, none), linear-gradient(160deg, rgba(255, 255, 255, .62) 0%, rgba(255, 255, 255, .62) 100%);
     background-size: cover, cover;
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;
-    color: #e8ecf4;
+    color: #1c2433;
     padding: 28px;
 }
 
 .wrap {
+    position: relative;
     width: 100%;
+}
+
+/* 顶部的标题和底部的署名直接压在插画上，最容易糊，单独再垫一层白，
+   渐变到透明过渡，不会在正文中间留出痕迹 */
+.wrap::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 130px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .88) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.wrap::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, .88) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 正文浮在压白层之上 */
+.head,
+.grid,
+.row,
+.top {
+    position: relative;
+    z-index: 1;
 }
 
 /* ── 头部 ── */
 .head {
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    border-bottom: 1px solid #ccd6e4;
     text-align: center;
 }
 
@@ -44,9 +81,9 @@ body {
 .title .badge {
     font-size: 15px;
     font-weight: 500;
-    color: #8fb8ff;
-    background: rgba(80, 140, 255, .14);
-    border: 1px solid rgba(120, 170, 255, .28);
+    color: #245bb4;
+    background: rgba(36, 91, 180, .10);
+    border: 1px solid rgba(36, 91, 180, .30);
     border-radius: 6px;
     padding: 3px 10px;
 }
@@ -54,7 +91,7 @@ body {
 .head .sub {
     margin-top: 9px;
     font-size: 16px;
-    color: #94a3bd;
+    color: #4a5768;
 }
 
 /* ── 四张指标卡 ── */
@@ -66,8 +103,8 @@ body {
 }
 
 .card {
-    background: rgba(255, 255, 255, .045);
-    border: 1px solid rgba(255, 255, 255, .07);
+    background: rgba(255, 255, 255, .86);
+    border: 1px solid #d2dbe8;
     border-radius: 10px;
     padding: 16px 18px;
     text-align: center;
@@ -75,27 +112,27 @@ body {
 
 .card .k {
     font-size: 15px;
-    color: #7f8ea8;
+    color: #4a5768;
     margin-bottom: 8px;
 }
 
 .card .v {
     font-size: 23px;
     font-weight: 600;
-    color: #f2f5fb;
+    color: #10192a;
 }
 
 .card .d {
     margin-top: 6px;
     font-size: 15px;
-    color: #94a3bd;
+    color: #4a5768;
 }
 
 .bar {
     margin-top: 11px;
     height: 6px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, .08);
+    background: #dfe6f0;
     overflow: hidden;
 }
 
@@ -131,22 +168,22 @@ body {
     align-items: baseline;
     justify-content: center;
     gap: 12px;
-    background: rgba(255, 255, 255, .035);
-    border: 1px solid rgba(255, 255, 255, .055);
+    background: rgba(255, 255, 255, .80);
+    border: 1px solid #d2dbe8;
     border-radius: 8px;
     padding: 11px 16px;
 }
 
 .kv span {
     font-size: 15px;
-    color: #7f8ea8;
+    color: #4a5768;
     white-space: nowrap;
 }
 
 .kv b {
     font-size: 17px;
     font-weight: 600;
-    color: #dde4f0;
+    color: #10192a;
     /* 值要能换行：磁盘 IO 那行较长，不换行会溢出卡片被裁掉 */
     white-space: normal;
     word-break: break-word;
@@ -155,8 +192,8 @@ body {
 
 /* ── Top 进程 ── */
 .top {
-    background: rgba(255, 255, 255, .035);
-    border: 1px solid rgba(255, 255, 255, .055);
+    background: rgba(255, 255, 255, .80);
+    border: 1px solid #d2dbe8;
     border-radius: 10px;
     padding: 14px 18px 8px;
     margin-bottom: 12px;
@@ -164,7 +201,7 @@ body {
 
 .top-h {
     font-size: 15px;
-    color: #7f8ea8;
+    color: #4a5768;
     margin-bottom: 10px;
 }
 
@@ -184,8 +221,8 @@ body {
     text-align: center;
     font-size: 12px;
     border-radius: 4px;
-    background: rgba(120, 170, 255, .16);
-    color: #9cc0ff;
+    background: rgba(36, 91, 180, .13);
+    color: #245bb4;
 }
 
 .top-i .nm {
@@ -194,21 +231,21 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #e4e9f3;
+    color: #10192a;
 }
 
 .top-i .pid {
     flex: none;
     width: 78px;
     font-size: 13px;
-    color: #6d7c96;
+    color: #55637a;
 }
 
 .top-i .track {
     flex: 1;
     height: 5px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, .07);
+    background: #dfe6f0;
     overflow: hidden;
 }
 
@@ -229,36 +266,39 @@ body {
     width: 92px;
     text-align: right;
     font-size: 14px;
-    color: #b8c4d8;
+    color: #2b3849;
 }
 
 /* ── 页脚 ── */
-    .foot {
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255, 255, 255, .06);
-        font-size: 13px;
-        color: #5d6b84;
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-    }
+.foot {
+    position: relative;
+    z-index: 1;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #ccd6e4;
+    font-size: 13px;
+    /* 原本是浅灰 #5d6b84，浅底上几乎看不见，这里压深 */
+    color: #3d4a5e;
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
 
-    /* sys.copyright 里带 <span class="version">，版本号压小一号 */
-    .foot .sig {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+/* sys.copyright 里带 <span class="version">，版本号压小一号 */
+.foot .sig {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .foot .version {
-        font-size: 11px;
-        opacity: .8;
-    }
+.foot .version {
+    font-size: 11px;
+    opacity: .85;
+}
 
-    .foot .at {
-        flex: none;
-    }
-
+.foot .at {
+    flex: none;
+}
