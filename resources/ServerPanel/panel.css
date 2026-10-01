@@ -7,9 +7,11 @@
 body {
     width: 900px;
     font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-    /* 背景图是浅色插画，所以整体走浅色主题：白蒙版压住底图，正文用深色字。
-       蒙版再重一点字会糊，再轻一点底图会抢戏，0.62 是试出来的折中值 */
-    background-image: var(--panel-bg, none), linear-gradient(160deg, rgba(255, 255, 255, .62) 0%, rgba(255, 255, 255, .62) 100%);
+    /* 背景图由模板直接写进 background-image（见 panel.html）。
+       不能走 CSS 变量传 URL：渲染器会把资源路径改写成相对形式，
+       那种路径经 var() 传递后基准会错位，图加载不出来只剩白底。
+       这里的 linear-gradient 是没配图时的兜底，也是压暗底图用的白蒙版：
+       蒙版再重字会糊，再轻底图会抢戏，0.62 是试出来的折中值 */
     background-size: cover, cover;
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;

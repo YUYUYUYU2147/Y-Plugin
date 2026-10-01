@@ -156,7 +156,10 @@ export class ServerDetails extends plugin {
       const msg = await common.render("ServerPanel/panel", this.buildPanelParams({
         data, base, cur, disk, title, gpuLine, theme
       }), { e, scale: 1 })
-      return e.reply(msg, true)
+      // 走群对象的 sendMsg 直接发：e.reply 是适配器的引用回复，
+      // 会带上原消息触发 QQ 把图渲染成缩略图
+      const grp = e.group || (e.group_id ? Bot.pickGroup(e.group_id) : null)
+      return grp?.sendMsg ? grp.sendMsg(msg) : e.reply(msg)
     } catch (err) {
       logger.error(`[Y][server-panel] 渲染失败，退回文字: ${err?.message || err}`)
       return e.reply(text, true)

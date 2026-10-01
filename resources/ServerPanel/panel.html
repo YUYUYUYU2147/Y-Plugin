@@ -7,7 +7,7 @@
 </head>
 
 <% if (bgImg) bgImg = bgImg.replace(/{{_res_path}}/g, _res_path) %>
-<body {{if bgImg}}style="--panel-bg:url('{{bgImg}}')"{{/if}}>
+<body style="background-image:{{if bgImg}}url('{{bgImg}}'),{{/if}}linear-gradient(160deg, rgba(255, 255, 255, .62) 0%, rgba(255, 255, 255, .62) 100%)">
     <div class="wrap">
         <div class="head">
             <div class="title">
