@@ -282,15 +282,14 @@ body {
     font-weight: 500;
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: center;
+    gap: 18px;
+    text-align: center;
 }
 
 /* sys.copyright 里带 <span class="version">，版本号压小一号 */
 .foot .sig {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
