@@ -225,11 +225,32 @@ body {
 }
 
 /* ── 页脚 ── */
-.foot {
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, .06);
-    font-size: 13px;
-    color: #5d6b84;
-    text-align: right;
-}
+    .foot {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, .06);
+        font-size: 13px;
+        color: #5d6b84;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    /* sys.copyright 里带 <span class="version">，版本号压小一号 */
+    .foot .sig {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .foot .version {
+        font-size: 11px;
+        opacity: .8;
+    }
+
+    .foot .at {
+        flex: none;
+    }
+
