@@ -100,14 +100,29 @@ other:
     天气接口key 
     获取地址https://console.amap.com/
   weather: []
+  panelTypeTips: |-
+    服务器面板类型：1panel 或 nezha
+  panelType: 1panel
+  onePanelIPTips: |-
+    1Panel 面板地址
+  onePanelIP: ''
+  onePanelKeyTips: |-
+    1Panel API Key
+  onePanelKey: ''
+  onePanelVersionTips: |-
+    1Panel API 版本，v2.3.x 请选择 v2；不确定可选 auto
+  onePanelVersion: auto
+  onePanelNameTips: |-
+    1Panel 显示名称
+  onePanelName: ''
   nezhaIPTips: |-
-    哪吒面板地址
+    兼容旧版：哪吒面板地址
   nezhaIP: ''
   nezhaUserTips: |-
-    哪吒面板用户
+    兼容旧版：哪吒面板用户
   nezhaUser: ''
   nezhaCodeTips: |-
-    哪吒面板密码
+    兼容旧版：哪吒面板密码
   nezhaCode: ''
   DZListTips: |-
     自动点赞列表

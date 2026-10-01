@@ -22,7 +22,7 @@ export const helpList = [
       },
       {
         icon: 2,
-        title: "哪吒面板",
+        title: "服务器面板",
         desc: "前往Guoba或插件内配置"
       },
       {

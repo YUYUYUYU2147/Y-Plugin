@@ -149,7 +149,65 @@ export default [
   },
   {
     component: "Divider",
-    label: "哪吒面板配置"
+    label: "服务器面板配置"
+  },
+  {
+    field: "other.panelType",
+    label: "面板类型",
+    helpMessage: "默认使用 1Panel；如仍使用哪吒，可切换为 nezha",
+    componentProps: {
+      options: [
+        { label: "1Panel", value: "1panel" },
+        { label: "哪吒", value: "nezha" }
+      ]
+    },
+    component: "Select"
+  },
+  {
+    field: "other.onePanelIP",
+    helpMessage: "用于请求 1Panel",
+    label: "1Panel 地址",
+    bottomHelpMessage: "例如 http://127.0.0.1:9999，不要填写 /api/v1",
+    componentProps: {
+      placeholder: "请输入 1Panel 地址"
+    },
+    component: "Input"
+  },
+  {
+    field: "other.onePanelKey",
+    helpMessage: "1Panel 设置 → 面板 → API 接口中生成的 API Key",
+    label: "1Panel API Key",
+    componentProps: {
+      placeholder: "请输入 API Key",
+      type: "password"
+    },
+    component: "Input"
+  },
+  {
+    field: "other.onePanelVersion",
+    helpMessage: "1Panel v2.3.x 使用 v2；不确定时选 auto",
+    label: "1Panel API 版本",
+    componentProps: {
+      options: [
+        { label: "自动尝试", value: "auto" },
+        { label: "v2", value: "v2" },
+        { label: "v1", value: "v1" }
+      ]
+    },
+    component: "Select"
+  },
+  {
+    field: "other.onePanelName",
+    helpMessage: "仅用于 QQ 消息里的显示名称",
+    label: "1Panel 显示名称",
+    componentProps: {
+      placeholder: "例如 主服务器"
+    },
+    component: "Input"
+  },
+  {
+    component: "Divider",
+    label: "哪吒兼容配置"
   },
   {
     field: "other.nezhaIP",

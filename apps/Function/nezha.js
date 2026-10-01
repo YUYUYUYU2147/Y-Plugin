@@ -1,17 +1,18 @@
 import { Config } from "#components"
 import moment from "moment"
 import { logger } from "#lib"
+import crypto from "node:crypto"
 
 export class ServerDetails extends plugin {
   constructor() {
     super({
-      name: "Y:哪吒面板",
-      dsc: "哪吒面板",
+      name: "Y:服务器面板",
+      dsc: "哪吒/1Panel 面板",
       event: "message",
       priority: Config.other.priority,
       rule: [
         {
-          reg: /^#?(nz|nezha|哪吒)(面板|探针)$/,
+          reg: /^#?(?:(nz|nezha|哪吒)(面板|探针)|(1panel|1Panel|1panal|1Panal)(面板|状态|探针)?)$/,
           fnc: "mb"
         }
       ]
@@ -20,7 +21,20 @@ export class ServerDetails extends plugin {
 
   async mb(e) {
     if (!e.isMaster) return
+    const msg = String(e.msg || "")
+    const type = /1pan(?:el|al)/i.test(msg) ? "1panel" : String(Config.other.panelType || "1panel").toLowerCase()
+    try {
+      if (type === "1panel") return await this.onePanel(e)
+      return await this.nezha(e)
+    } catch (err) {
+      logger.error(`[Y][server-panel] ${err?.stack || err?.message || err}`)
+      return e.reply(`面板请求失败：${err?.message || err}`, true)
+    }
+  }
+
+  async nezha(e) {
     const { nezhaIP, nezhaUser, nezhaCode } = Config.other
+    if (!nezhaIP || !nezhaUser || !nezhaCode) return e.reply("哪吒面板配置不完整，请在锅巴填写面板地址、用户和密码。", true)
     const loginurl = `${nezhaIP}/api/v1/login`
     const lg = {
       username: nezhaUser,
@@ -34,6 +48,7 @@ export class ServerDetails extends plugin {
       body: JSON.stringify(lg)
     })
     const loginjson = await login.json()
+    if (!login.ok || !loginjson?.data?.token) throw new Error(loginjson?.message || `哪吒登录失败(${login.status})`)
     const headers = {
       Authorization: `Bearer ${loginjson.data.token}`
     }
@@ -41,6 +56,7 @@ export class ServerDetails extends plugin {
     const response = await fetch(url, { headers })
     const json = await response.json()
     let servers = json.data
+    if (!response.ok || !Array.isArray(servers)) throw new Error(json?.message || `哪吒服务器列表获取失败(${response.status})`)
     servers = servers.sort((a, b) => a.id - b.id)
     const forwardNodes = servers.map((mb) => ({
       user_id: e.user_id,
@@ -79,8 +95,108 @@ export class ServerDetails extends plugin {
     await e.reply(forwardMessage)
   }
 
+  async onePanel(e) {
+    const {
+      onePanelIP,
+      onePanelKey,
+      onePanelVersion = "auto",
+      onePanelName,
+      nezhaIP
+    } = Config.other
+    const baseUrl = String(onePanelIP || nezhaIP || "").trim().replace(/\/+$/, "")
+    const apiKey = String(onePanelKey || "").trim()
+    if (!baseUrl || !apiKey) return e.reply("1Panel 配置不完整，请在锅巴填写 1Panel 地址和 API Key。", true)
+
+    const data = await this.loadOnePanel(baseUrl, apiKey, onePanelVersion)
+    const base = data.base || {}
+    const cur = data.current || base.currentInfo || {}
+    const disk = this.pickDisk(cur.diskData)
+    const title = onePanelName || base.hostname || "1Panel"
+    const gpuLine = this.formatAccelerators(cur)
+    const lines = [
+      `名称：${title}`,
+      `面板：1Panel ${data.version}`,
+      `主机：${base.hostname || "未知"}`,
+      `系统：${base.prettyDistro || [base.platform, base.platformVersion].filter(Boolean).join(" ") || base.os || "未知"} [${base.kernelArch || "未知"}]`,
+      `内核：${base.kernelVersion || "未知"}`,
+      `CPU：${base.cpuModelName || "未知"} (${base.cpuLogicalCores || cur.cpuTotal || "?"} 线程)`,
+      `使用：${this.formatPercent(cur.cpuUsedPercent)}`,
+      `内存：${this.formatSize(cur.memoryUsed)} / ${this.formatSize(cur.memoryTotal)} (${this.formatPercent(cur.memoryUsedPercent)})`,
+      `交换：${this.formatSize(cur.swapMemoryUsed)} / ${this.formatSize(cur.swapMemoryTotal)} (${this.formatPercent(cur.swapMemoryUsedPercent)})`,
+      `磁盘：${disk ? `${this.formatSize(disk.used)} / ${this.formatSize(disk.total)} (${this.formatPercent(disk.usedPercent)})` : "未知"}`,
+      `流量：↓${this.formatSize(cur.netBytesRecv)} ↑${this.formatSize(cur.netBytesSent)}`,
+      `IO：读 ${this.formatSize(cur.ioReadBytes)} / 写 ${this.formatSize(cur.ioWriteBytes)}`,
+      `负载：${this.formatNumber(cur.load1)} / ${this.formatNumber(cur.load5)} / ${this.formatNumber(cur.load15)}`,
+      `进程：${cur.procs ?? "未知"}`,
+      `运行：${this.formatRunningTime(cur)}`,
+      ...(gpuLine ? [`加速卡：${gpuLine}`] : [])
+    ]
+    return e.reply(lines.join("\n"), true)
+  }
+
+  async loadOnePanel(baseUrl, apiKey, version = "auto") {
+    const versions = String(version || "auto").toLowerCase() === "auto"
+      ? ["v2", "v1"]
+      : [String(version).toLowerCase()]
+    const errors = []
+    for (const ver of versions) {
+      for (const auth of this.onePanelAuthModes(ver)) {
+        try {
+          const base = await this.onePanelJson(baseUrl, apiKey, ver, `/api/${ver}/dashboard/base/all/all`, auth)
+          return { version: `${ver}/${auth}`, base, current: base?.currentInfo || {} }
+        } catch (err) {
+          errors.push(`${ver}/${auth}: ${err.message}`)
+        }
+      }
+    }
+    throw new Error(errors.join("；") || "1Panel API 无返回")
+  }
+
+  onePanelAuthModes(version) {
+    return version === "v2" ? ["hmac", "md5"] : ["md5"]
+  }
+
+  async onePanelJson(baseUrl, apiKey, version, path, authMode) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 15000)
+    try {
+      const response = await fetch(`${baseUrl}${path}`, {
+        method: "GET",
+        headers: this.onePanelHeaders(apiKey, authMode),
+        signal: controller.signal
+      })
+      const text = await response.text()
+      let json = {}
+      try {
+        json = text ? JSON.parse(text) : {}
+      } catch {
+        throw new Error(`返回非 JSON：${text.slice(0, 80)}`)
+      }
+      if (!response.ok) throw new Error(json?.message || json?.msg || `HTTP ${response.status}`)
+      const code = Number(json?.code ?? 200)
+      if (code && code !== 200) throw new Error(json?.message || json?.msg || `code=${json.code}`)
+      return json?.data ?? json
+    } catch (err) {
+      throw new Error(err?.name === "AbortError" ? "请求超时" : err.message)
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  onePanelHeaders(apiKey, authMode) {
+    const timestamp = Math.floor(Date.now() / 1000).toString()
+    const token = authMode === "hmac"
+      ? crypto.createHmac("sha256", apiKey).update(`1panel:${timestamp}`).digest("hex")
+      : crypto.createHash("md5").update(`1panel${apiKey}${timestamp}`).digest("hex")
+    return {
+      "1Panel-Token": token,
+      "1Panel-Timestamp": timestamp,
+      "Content-Type": "application/json"
+    }
+  }
+
   getFlagEmoji(countryCode) {
-    countryCode = countryCode.toUpperCase()
+    countryCode = String(countryCode || "").toUpperCase()
     if (countryCode.length !== 2 || !/^[A-Z]{2}$/.test(countryCode)) {
       logger.error("国家代码无效:", countryCode)
       return ""
@@ -91,6 +207,7 @@ export class ServerDetails extends plugin {
   }
 
   formatSize(sizeInBytes) {
+    if (sizeInBytes === undefined || sizeInBytes === null || Number.isNaN(Number(sizeInBytes))) return "未知"
     const sizeInKB = sizeInBytes / 1024
     const sizeInMB = sizeInKB / 1024
     if (sizeInMB < 1) {
@@ -109,5 +226,46 @@ export class ServerDetails extends plugin {
 
   formatDate(timestamp) {
     return moment.unix(timestamp).format("YYYY年MM月DD日 HH:mm:ss")
+  }
+
+  formatPercent(value) {
+    if (value === undefined || value === null || Number.isNaN(Number(value))) return "未知"
+    return `${Number(value).toFixed(2)}%`
+  }
+
+  formatNumber(value) {
+    if (value === undefined || value === null || Number.isNaN(Number(value))) return "未知"
+    return Number(value).toFixed(2)
+  }
+
+  formatRunningTime(cur = {}) {
+    if (cur.runningTime) {
+      const { days = 0, hours = 0, minutes = 0 } = cur.runningTime
+      return `${days}天 ${hours}小时 ${minutes}分钟`
+    }
+    return cur.uptime ? this.formatUptime(cur.uptime) : "未知"
+  }
+
+  pickDisk(disks = []) {
+    if (!Array.isArray(disks) || !disks.length) return null
+    const disk = disks.find(i => i.path === "/") || disks.reduce((sum, disk) => ({
+      used: Number(sum.used || 0) + Number(disk.used || 0),
+      total: Number(sum.total || 0) + Number(disk.total || 0),
+      usedPercent: 0
+    }), {})
+    if (!disk.usedPercent && disk.total) disk.usedPercent = disk.used / disk.total * 100
+    return disk
+  }
+
+  formatAccelerators(cur = {}) {
+    const list = [
+      ...(Array.isArray(cur.gpuData) ? cur.gpuData : []),
+      ...(Array.isArray(cur.npuData) ? cur.npuData : []),
+      ...(Array.isArray(cur.xpuData) ? cur.xpuData : [])
+    ]
+    return list
+      .map(i => [i.productName || i.deviceName || i.type, i.gpuUtil || i.memoryUtil, i.temperature].filter(Boolean).join(" "))
+      .filter(Boolean)
+      .join("；")
   }
 }

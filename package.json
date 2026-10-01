@@ -1,6 +1,6 @@
 {
   "name": "Y-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Yunzai-Bot扩展插件",
   "main": "index.js",
   "type": "module",
