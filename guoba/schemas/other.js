@@ -193,6 +193,15 @@ export default [
     component: "Input"
   },
   {
+    field: "other.panelBg",
+    helpMessage: "服务器面板的背景图地址，支持 http/https/file 协议。留空则跟随 Y 帮助页当前主题的背景图。面板文字是深色，背景偏亮才看得清，深色背景会导致文字看不清。",
+    label: "面板背景图",
+    componentProps: {
+      placeholder: "留空 = 跟随帮助页主题"
+    },
+    component: "Input"
+  },
+  {
     component: "Divider",
     label: "哪吒兼容配置"
   },

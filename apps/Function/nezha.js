@@ -111,6 +111,7 @@ export class ServerDetails extends plugin {
       onePanelIP,
       onePanelKey,
       onePanelName,
+      panelBg,
       nezhaIP
     } = Config.other
     const baseUrl = String(onePanelIP || nezhaIP || "").trim().replace(/\/+$/, "")
@@ -118,8 +119,12 @@ export class ServerDetails extends plugin {
     if (!baseUrl || !apiKey) return e.reply("1Panel 配置不完整，请在锅巴填写 1Panel 地址和 API Key。", true)
 
     const data = await this.loadOnePanel(baseUrl, apiKey)
-    // 背景图跟帮助页用同一套主题，换皮肤时面板跟着变
-    const theme = await Theme.getThemeCfg(Config.helpCfg?.theme, Config.helpCfg?.themeExclude)
+    // 背景图：锅巴里填了地址就用填的，没填才跟随帮助页当前主题
+    const customBg = String(panelBg || "").trim()
+    const theme = customBg ? { main: customBg } : await Theme.getThemeCfg(
+      Config.helpCfg?.theme,
+      Config.helpCfg?.themeExclude
+    )
     const base = data.base || {}
     const cur = data.current || base.currentInfo || {}
     const disk = this.pickDisk(cur.diskData)

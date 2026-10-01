@@ -112,6 +112,11 @@ other:
   onePanelNameTips: |-
     1Panel 显示名称
   onePanelName: ''
+  panelBgTips: |-
+    服务器面板背景图地址，支持 http/https/file 协议。
+    留空则跟随 Y 帮助页当前主题的背景图。
+    面板文字是深色，背景图偏亮才看得清，深色背景会糊。
+  panelBg: ''
   nezhaIPTips: |-
     兼容旧版：哪吒面板地址
   nezhaIP: ''
