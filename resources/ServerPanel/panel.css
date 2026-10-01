@@ -30,8 +30,9 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 130px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, .88) 0%, rgba(255, 255, 255, 0) 100%);
+    height: 190px;
+    /* 前 55% 维持高不透明度，副标题落在这一段里；再往后才渐隐到透明 */
+    background: linear-gradient(180deg, rgba(255, 255, 255, .93) 0%, rgba(255, 255, 255, .90) 55%, rgba(255, 255, 255, 0) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -42,8 +43,8 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 80px;
-    background: linear-gradient(0deg, rgba(255, 255, 255, .88) 0%, rgba(255, 255, 255, 0) 100%);
+    height: 110px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, .93) 0%, rgba(255, 255, 255, .88) 50%, rgba(255, 255, 255, 0) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -91,7 +92,7 @@ body {
 .head .sub {
     margin-top: 9px;
     font-size: 16px;
-    color: #4a5768;
+    color: #333f52;
 }
 
 /* ── 四张指标卡 ── */
@@ -277,8 +278,8 @@ body {
     padding-top: 12px;
     border-top: 1px solid #ccd6e4;
     font-size: 13px;
-    /* 原本是浅灰 #5d6b84，浅底上几乎看不见，这里压深 */
-    color: #3d4a5e;
+    /* 原本是浅灰 #5d6b84，压在插画上会发灰，这里再压深一档 */
+    color: #2c3849;
     font-weight: 500;
     display: flex;
     align-items: baseline;
