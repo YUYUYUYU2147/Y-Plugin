@@ -109,7 +109,7 @@ export default new (class {
     const headers = this.getHeaders(token, source)
 
     try {
-      const data = await this.fetchData(urlObj.toString(), headers, repo, source)
+      const data = await this.fetchData(urlObj.toString(), headers, repo, source, baseURL)
       return data || 'return'
     } catch (err) {
       logger.error('获取仓库数据失败', { url: redactUrl(urlObj.toString()), err })
@@ -136,7 +136,7 @@ export default new (class {
     if (isCNB) url = `${baseURL}/${repo}/-/git/head`
 
     const headers = this.getHeaders(token, source)
-    const data = await this.fetchData(url, headers, repo, source)
+    const data = await this.fetchData(url, headers, repo, source, baseURL)
     if (data) {
       return isCNB ? data?.name : data?.default_branch
     } else {
@@ -178,12 +178,56 @@ export default new (class {
    * @param {string} source - 数据源
    * @returns {Promise<object | false>} 返回请求的数据或 false（请求失败）
    */
-  async fetchData(url, headers = {}, repo, source) {
+  /**
+   * 把前缀代理地址换回官方地址。
+   *
+   * 形如 https://gh-proxy.com/https://api.github.com/repos/a/b?access_token=xxx
+   * 换成 https://api.github.com/repos/a/b，并去掉 access_token 查询参数 ——
+   * GitHub 已不再支持用查询参数认证，认证只认 Authorization 头。
+   *
+   * 本来就是官方地址（或没给 baseURL）时返回空串，表示没什么可换的。
+   */
+  directUrl(url, baseURL, source) {
+    const official = GitUrl[source]
+    if (!official || !baseURL) return ''
+    const base = String(baseURL).replace(/\/+$/, '')
+    if (String(url).startsWith(official)) return ''
+    if (!String(url).startsWith(base)) return ''
+    const u = new URL(official + String(url).slice(base.length))
+    u.searchParams.delete('access_token')
+    return u.toString()
+  }
+
+  async fetchData(url, headers = {}, repo, source, baseURL = '') {
     try {
-      const response = await request.get(url, {
+      let response = await request.get(url, {
         headers,
         responseType: 'raw'
       })
+
+      // 前缀代理（gh-proxy 之类）只把 URL 转发给上游，不会带上 Authorization 头，
+      // 于是私库一律 404 —— 代理看得见地址、看不见凭据。实测同一私库：
+      //   经代理 + Authorization 头        404
+      //   经代理 + ?access_token=          404
+      //   经代理 + 无认证                  404
+      //   直连 + Authorization 头          200
+      //
+      // 所以拿到 404 且手里有 token 时，改用官方地址再试一次。公开仓库本来就能
+      // 走通代理，不会触发这段，所以代理的速度和稳定性对它们没有影响。
+      if (response.status === 404 && headers.Authorization && baseURL) {
+        const direct = this.directUrl(url, baseURL, source)
+        if (direct) {
+          logger.mark(`[GitApi] ${repo} 代理取不到，改走官方地址重试（多半是私库）`)
+          try {
+            response = await request.get(direct, {
+              headers,
+              responseType: 'raw'
+            })
+          } catch (err) {
+            logger.error(`回退官方地址失败: ${redactUrl(direct)}，${err.message}`)
+          }
+        }
+      }
 
       if (!response.ok) {
         let msg
