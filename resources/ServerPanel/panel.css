@@ -7,7 +7,11 @@
 body {
     width: 900px;
     font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-    background: linear-gradient(160deg, #1a2233 0%, #121722 60%, #0e131c 100%);
+    /* 背景图铺在最上层，深色渐变叠在它上面压暗，保证卡片文字仍然清楚 */
+    background-image: var(--panel-bg, none), linear-gradient(160deg, rgba(9, 14, 25, .84) 0%, rgba(8, 12, 22, .89) 60%, rgba(6, 10, 18, .93) 100%);
+    background-size: cover, cover;
+    background-position: center top, center;
+    background-repeat: no-repeat, no-repeat;
     color: #e8ecf4;
     padding: 28px;
 }
@@ -21,11 +25,13 @@ body {
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, .08);
+    text-align: center;
 }
 
 .title {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
 }
 
@@ -64,6 +70,7 @@ body {
     border: 1px solid rgba(255, 255, 255, .07);
     border-radius: 10px;
     padding: 16px 18px;
+    text-align: center;
 }
 
 .card .k {
@@ -122,6 +129,7 @@ body {
     min-width: 0;
     display: flex;
     align-items: baseline;
+    justify-content: center;
     gap: 12px;
     background: rgba(255, 255, 255, .035);
     border: 1px solid rgba(255, 255, 255, .055);

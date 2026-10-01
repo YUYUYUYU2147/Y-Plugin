@@ -1,4 +1,5 @@
 import { Config, common } from "#components"
+import Theme from "../../model/help/theme.js"
 import moment from "moment"
 import { logger } from "#lib"
 import crypto from "node:crypto"
@@ -117,6 +118,8 @@ export class ServerDetails extends plugin {
     if (!baseUrl || !apiKey) return e.reply("1Panel 配置不完整，请在锅巴填写 1Panel 地址和 API Key。", true)
 
     const data = await this.loadOnePanel(baseUrl, apiKey)
+    // 背景图跟帮助页用同一套主题，换皮肤时面板跟着变
+    const theme = await Theme.getThemeCfg(Config.helpCfg?.theme, Config.helpCfg?.themeExclude)
     const base = data.base || {}
     const cur = data.current || base.currentInfo || {}
     const disk = this.pickDisk(cur.diskData)
@@ -146,7 +149,7 @@ export class ServerDetails extends plugin {
     // 出图失败时退回文字，不能因为渲染环境有问题就完全没回应
     try {
       const msg = await common.render("ServerPanel/panel", this.buildPanelParams({
-        data, base, cur, disk, title, gpuLine
+        data, base, cur, disk, title, gpuLine, theme
       }), { e, scale: 1 })
       return e.reply(msg, true)
     } catch (err) {
@@ -159,7 +162,7 @@ export class ServerDetails extends plugin {
    * 把接口数据摊成模板要的字段。格式化和取名都收在这里，模板里只做展示。
    * 百分比给「带 %」的文本，进度条另给一个纯数字，两者不能混用。
    */
-  buildPanelParams({ data, base, cur, disk, title, gpuLine }) {
+  buildPanelParams({ data, base, cur, disk, title, gpuLine, theme }) {
     const pct = (v) => {
       if (v === undefined || v === null || Number.isNaN(Number(v))) return 0
       return Math.max(0, Math.min(100, Number(v)))
@@ -178,6 +181,7 @@ export class ServerDetails extends plugin {
 
     return {
       title,
+      bgImg: theme?.main || "",
       version: `1Panel ${data.version}`,
       hostname: base.hostname || "未知",
       distro: base.prettyDistro || [ base.platform, base.platformVersion ].filter(Boolean).join(" ") || base.os || "未知",
