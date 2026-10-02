@@ -110,6 +110,11 @@ export default new (class {
 
     try {
       const data = await this.fetchData(urlObj.toString(), headers, repo, source, baseURL)
+      if (type === 'commits' && !Array.isArray(data) && data !== 'return' && data !== false) {
+        logger.mark(
+          `[结构] ${repo} 返回的是${typeof data}（不是数组），keys=${Object.keys(data || {}).slice(0, 4).join(',')}`
+        )
+      }
       return data || 'return'
     } catch (err) {
       logger.error('获取仓库数据失败', { url: redactUrl(urlObj.toString()), err })
