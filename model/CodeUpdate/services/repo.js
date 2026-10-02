@@ -53,9 +53,15 @@ async function fetchUpdates(repoList, source, token, type, redisKeyPrefix, isAut
       logger.debug(`请求 ${logger.magenta(source)} ${type}: ${logger.cyan(repo)}`)
       let [ path, branch ] = repo.split(":")
       if (!branch && type === "commits") branch = AutoPathBranch[path]
+      logger.debug(
+        `[探测] 开始 ${type} ${repo} → path=${path} branch=${branch || "(未指定)"} token=${token ? "有" : "无"}`
+      )
       if (Array.isArray(token)) token = lodash.sample(token)
       let data = await GitApi.getRepositoryData(path, source, type, token, branch)
-      if (data === "return") return
+      if (data === "return") {
+        logger.debug(`[探测] ${repo} 返回 "return"（请求失败或数据源未知）`)
+        return
+      }
       if (!data || [ "Not Found Projec", "Not Found" ].includes(data?.message)) {
         logger.error(`${logger.magenta(source)}: ${logger.cyan(repo)} 仓库不存在`)
         return
@@ -80,6 +86,7 @@ async function fetchUpdates(repoList, source, token, type, redisKeyPrefix, isAut
         ? formatCommitInfo(data[0], source, path, branch)
         : formatReleaseInfo(data[0], source, repo)
       content.push(info)
+      logger.debug(`[探测] ${repo} 收录，type=${type} branch=${branch || '(默认)'}`)
       if (cache && info) cache[key] = info
     } catch (error) {
       logger.error(`获取 ${logger.magenta(source)} ${type} ${logger.cyan(repo)} 数据出错: ${error?.stack || error}`)
