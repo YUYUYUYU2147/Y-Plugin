@@ -223,15 +223,21 @@ export default new (class {
               headers,
               responseType: 'raw'
             })
+            logger.debug(
+              `[GitApi] ${repo} 回退结果 ok=${response?.ok} status=${response?.status}`
+            )
           } catch (err) {
             logger.error(`回退官方地址失败: ${redactUrl(direct)}，${err.message}`)
+            // 回退失败时 response 仍是之前那个 404，后面会拿它当结果继续走，
+            // 于是报出「状态码：404」——看着像代理的错，其实直连才是失败的那个。
+            return false
           }
         }
       }
 
-      if (!response.ok) {
+      if (!response || !response.ok) {
         let msg
-        switch (response.status) {
+        switch (response?.status) {
           case 401:
             msg = '访问令牌无效或已过期 (code: 401)'
             break
@@ -250,7 +256,7 @@ export default new (class {
         return false
       }
 
-      const contentType = response.headers.get('content-type')
+      const contentType = response?.headers?.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
         logger.error(`响应非 JSON 格式: ${redactUrl(url)} , 内容：${await response.text()}`)
         return false
