@@ -223,8 +223,8 @@ export default new (class {
               headers,
               responseType: 'raw'
             })
-            logger.debug(
-              `[GitApi] ${repo} 回退结果 ok=${response?.ok} status=${response?.status}`
+            logger.mark(
+              `[回退结果] ${repo} ok=${response?.ok} status=${response?.status} 有headers=${!!response?.headers} body长度=${response?.body?.length ?? '-'}`
             )
           } catch (err) {
             logger.error(`回退官方地址失败: ${redactUrl(direct)}，${err.message}`)
