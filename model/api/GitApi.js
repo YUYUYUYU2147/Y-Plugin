@@ -110,11 +110,6 @@ export default new (class {
 
     try {
       const data = await this.fetchData(urlObj.toString(), headers, repo, source, baseURL)
-      if (type === 'commits' && !Array.isArray(data) && data !== 'return' && data !== false) {
-        logger.mark(
-          `[结构] ${repo} 返回的是${typeof data}（不是数组），keys=${Object.keys(data || {}).slice(0, 4).join(',')}`
-        )
-      }
       return data || 'return'
     } catch (err) {
       logger.error('获取仓库数据失败', { url: redactUrl(urlObj.toString()), err })
@@ -228,9 +223,7 @@ export default new (class {
               headers,
               responseType: 'raw'
             })
-            logger.mark(
-              `[回退结果] ${repo} ok=${response?.ok} status=${response?.status} 有headers=${!!response?.headers} body长度=${response?.body?.length ?? '-'}`
-            )
+            logger.debug(`[GitApi] ${repo} 回退结果 ok=${response?.ok} status=${response?.status}`)
           } catch (err) {
             logger.error(`回退官方地址失败: ${redactUrl(direct)}，${err.message}`)
             // 回退失败时 response 仍是之前那个 404，后面会拿它当结果继续走，
