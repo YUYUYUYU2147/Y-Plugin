@@ -22,16 +22,18 @@ class Bili {
   // 点赞（需 access_token，无则跳过）
   async likevideo(userCookies, aid, action) {
     const likeUrl = `${this.signApi}/like?accesskey=${userCookies.access_token}&aid=${aid}&like=${action}`
+    // 提到 try 外面：原来声明在 try 块内，catch 里引用会抛 ReferenceError，
+    // 请求一失败就把真正的错误换成「reply 未定义」，看不出真实原因。
+    const reply = action === 0 ? "点赞" : "取消点赞"
     try {
       const response = await fetch(likeUrl)
       const json = await response.json()
-      const reply = action === 0 ? "点赞" : "取消点赞"
       return json.code === 0
         ? `${this.prefix}${reply}视频成功`
         : `${this.prefix}${reply}视频失败:${json.message || json.msg || "未知错误"}`
     } catch (err) {
       logger.error("点赞操作失败:", err)
-      return `${reply}视频请求失败，请检查日志输出`
+      return `${this.prefix}${reply}视频请求失败，请检查日志输出`
     }
   }
 
